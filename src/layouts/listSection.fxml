@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="250.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.listSection">
+    <children>
+        <Button layoutX="54.0" layoutY="28.0" mnemonicParsing="false" onAction="#OpenStaffWindow" prefHeight="60.0" prefWidth="150.0" text="Персонал">
+            <font>
+                <Font size="24.0" />
+            </font>
+        </Button>
+        <Button layoutX="54.0" layoutY="121.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="150.0" text="Учащиеся">
+            <font>
+                <Font size="24.0" />
+            </font>
+        </Button>
+    </children>
+</Pane>
