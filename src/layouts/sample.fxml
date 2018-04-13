@@ -9,7 +9,7 @@
 <?import org.controlsfx.control.textfield.CustomPasswordField?>
 <?import org.controlsfx.control.textfield.CustomTextField?>
 
-<Pane maxHeight="204.0" maxWidth="320.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="320.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Controller">
+<Pane maxHeight="228.0" maxWidth="320.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="230.0" prefWidth="320.0" stylesheets="/styles/sample.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Controller">
    <children>
       <VBox layoutX="40.0" layoutY="7.0" prefHeight="186.0" prefWidth="240.0">
          <children>
@@ -23,14 +23,14 @@
                   <Insets top="10.0" />
                </VBox.margin>
             </CustomPasswordField>
-            <Button mnemonicParsing="false" onAction="#log_out" prefHeight="25.0" prefWidth="70.0" text="Войти">
+            <Button mnemonicParsing="false" onAction="#log_out" prefHeight="25.0" prefWidth="110.0" text="Войти">
                <VBox.margin>
-                  <Insets left="85.0" top="15.0" />
+                  <Insets left="65.0" top="15.0" />
                </VBox.margin>
             </Button>
             <Label fx:id="label_errors" contentDisplay="CENTER" prefHeight="17.0" prefWidth="240.0" textAlignment="CENTER" textFill="#ee0000" textOverrun="CLIP">
                <VBox.margin>
-                  <Insets top="20.0" />
+                  <Insets top="10.0" />
                </VBox.margin>
                <font>
                   <Font size="14.0" />

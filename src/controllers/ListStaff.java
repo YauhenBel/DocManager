@@ -4,6 +4,7 @@ import interfaces.CollectionListStaff;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -14,8 +15,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import objects.Staff;
+import sample.Main;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -28,12 +32,14 @@ import java.sql.Statement;
 import java.util.Observable;
 import java.util.ResourceBundle;
 
+import static com.sun.deploy.util.UpdateCheck.showDialog;
+
 public class ListStaff extends Observable implements Initializable {
 
     @FXML public Button btnOpen;
     @FXML public Button btnAdd;
     @FXML public Button btnDelete;
-    private CollectionListStaff collectionListStaff = new CollectionListStaff();
+    public CollectionListStaff collectionListStaff = new CollectionListStaff();
     @FXML public TableView table_staff;
     @FXML public TableColumn<Staff, String> SurnameColumn;
     @FXML public TableColumn<Staff, String> NameColumn;
@@ -42,7 +48,10 @@ public class ListStaff extends Observable implements Initializable {
     @FXML public Label labelCount;
     private static String FXMLSection = "../layouts/PersonalInfo.fxml";
     private Stage primaryStage;
-    private Parent root;
+    private FXMLLoader fxmlLoader = new FXMLLoader();
+    private Parent fxmlPersonalInfo;
+
+    private PrivateInfo privateInfo;
 
     private ObservableList<Staff> staffList =
             FXCollections.observableArrayList();
@@ -57,13 +66,15 @@ public class ListStaff extends Observable implements Initializable {
         //DownloadDates();
         initListeners();
         fillData();
+        initLoader();
     }
 
-    private void fillData()
-    {
+    public void fillData() {
+        if (collectionListStaff != null) {
+            collectionListStaff.clearList();
+        }
         collectionListStaff.filltestData();
         table_staff.setItems(collectionListStaff.getStaffList());
-        collectionListStaff.print();
     }
 
     private void initListeners() {
@@ -73,58 +84,31 @@ public class ListStaff extends Observable implements Initializable {
                 updateCountLabel();
             }
         });
+
+        table_staff.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (event.getClickCount() == 2) {
+                    privateInfo.setStaff((Staff) table_staff.getSelectionModel().getSelectedItem());
+                    createGui();
+                    System.out.println("close window1");
+                    //fillData();
+                }
+            }
+        });
     }
 
-    private void updateCountLabel()
-    {
+    private void updateCountLabel() {
         labelCount.setText("Количество записей: "
                 + collectionListStaff.getStaffList().size());
     }
 
-    private void DownloadDates() {
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            String url = "jdbc:mysql://localhost:3306/office_datas";
-            String login = "root";
-            String password = "";
-            Connection con = DriverManager.getConnection(url, login, password);
-            try {
-                Statement stmt = con.createStatement();
-                String sql_query = "SELECT * FROM `staff`";
-                System.out.println(sql_query);
-                ResultSet rs = stmt.executeQuery(sql_query);
-
-                while (rs.next()) {
-                    String str = "{\nid_staff = " + rs.getString("id_staff")
-                            + ",\nsurname = " + rs.getString("surname")
-                            + ",\nname = " + rs.getString("name")
-                            + ",\nfather_name = " + rs.getString("father_name")
-                            + ",\ntd_of_birth = "+ rs.getString("d_of_birth")
-                            + ",\nnum_passp = " + rs.getString("num_passp")
-                            + ",\npassp_private_num = " + rs.getString("passp_private_num")
-                            + ",\naddress = " + rs.getString("address")
-                            + ",\ntel_1 = "+ rs.getString("tel_1")
-                            + ",\ntel_2 = " + rs.getString("tel_2")
-                            + ",\nadd_info = " + rs.getString("add_info")
-                            + ",\ntype_work = " + rs.getString("type_work")
-                            + ",\nposition = "+ rs.getString("position") + ";\n}";
-                    System.out.println("info: " + str);
-                }
-                rs.close();
-                stmt.close();
-            } finally {
-                con.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-     public void ActionButtonPressed(javafx.event.ActionEvent actionEvent) throws IOException {
+     public void ActionButtonPressed(javafx.event.ActionEvent actionEvent){
         Object object = actionEvent.getSource();
 
-        if (!(object instanceof Button))
-        {
+        Staff selectedStaff = (Staff) table_staff.getSelectionModel().getSelectedItem();
+
+        if (!(object instanceof Button)) {
             return;
         }
 
@@ -133,7 +117,13 @@ public class ListStaff extends Observable implements Initializable {
         switch (button.getId()){
             case "btnOpen":
                 System.out.println("btnOpen");
+                if (!personIsSelected(selectedStaff)) {
+                    return;
+                }
+                privateInfo.setStaff(selectedStaff);
                 createGui();
+                System.out.println("close window");
+                //fillData();
                 break;
             case "btnAdd":
                 System.out.println("btnAdd");
@@ -143,15 +133,43 @@ public class ListStaff extends Observable implements Initializable {
                 break;
         }
     }
-    private void createGui() throws IOException {
-        root = FXMLLoader.load(getClass().getResource(FXMLSection));
-        primaryStage = new Stage();
-        primaryStage.setTitle("Персональная информация");
-        primaryStage.setScene(new Scene(root, 700, 630));
-        primaryStage.setMaxWidth(700);
-        primaryStage.setMaxHeight(630);
-        primaryStage.show();
-        primaryStage.setMinHeight(primaryStage.getHeight());
-        primaryStage.setMinWidth(primaryStage.getWidth());
+    private void createGui() {
+        if (primaryStage == null) {
+            primaryStage = new Stage();
+            primaryStage.setTitle("Персональная информация");
+            primaryStage.setScene(new Scene(fxmlPersonalInfo));
+            primaryStage.initModality(Modality.WINDOW_MODAL);
+            primaryStage.setMaxWidth(1020);
+            primaryStage.setMaxHeight(660);
+            primaryStage.setMinHeight(primaryStage.getHeight());
+            primaryStage.setMinWidth(primaryStage.getWidth());
+        }
+        primaryStage.showAndWait();
+    }
+
+    private boolean personIsSelected(Staff selectPerson) {
+        if (selectPerson == null) {
+            System.out.println("Не выбран объект!");
+            return false;
+        }
+        System.out.println("Выбран объект!");
+        return true;
+    }
+
+    private void initLoader() {
+        try {
+
+            fxmlLoader.setLocation(getClass().getResource(FXMLSection));
+            fxmlPersonalInfo = fxmlLoader.load();
+            privateInfo = fxmlLoader.getController();
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void UpdateTable(javafx.event.ActionEvent actionEvent) {
+        //fillData();
     }
 }

@@ -1,34 +1,40 @@
 package objects;
 
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 public class Staff {
-    //ИД сотрудника
-    private SimpleStringProperty ID_staff = new SimpleStringProperty();
+    //ID сотрудника
+    private SimpleIntegerProperty ID_staff = new SimpleIntegerProperty();
     //Фамилия
-    private SimpleStringProperty Surname = new SimpleStringProperty();
+    private SimpleStringProperty Surname = new SimpleStringProperty("");
     //Имя
-    private SimpleStringProperty Name = new SimpleStringProperty();
+    private SimpleStringProperty Name = new SimpleStringProperty("");
     //Отчество
-    private SimpleStringProperty FathName = new SimpleStringProperty();
-    //Дата рождения
-    private SimpleStringProperty DataOfBirth = new SimpleStringProperty();
+    private SimpleStringProperty FathName = new SimpleStringProperty("");
     //Номер пасспорта
-    private SimpleStringProperty NumPass = new SimpleStringProperty();
+    private SimpleStringProperty NumPass = new SimpleStringProperty("");
     //Идентификационный номер
-    private SimpleStringProperty NumPrivate = new SimpleStringProperty();
+    private SimpleStringProperty NumPrivate = new SimpleStringProperty("");
     //Адрес
-    private SimpleStringProperty Address = new SimpleStringProperty();
+    private SimpleStringProperty Address = new SimpleStringProperty("");
     //Первый номер телефона
-    private SimpleStringProperty Tel1 = new SimpleStringProperty();
+    private SimpleStringProperty Tel1 = new SimpleStringProperty("");
     //Второй номер телефона
-    private SimpleStringProperty Tel2 = new SimpleStringProperty();
+    private SimpleStringProperty Tel2 = new SimpleStringProperty("");
     //Дополнительная информация
-    private SimpleStringProperty AddInfo = new SimpleStringProperty();
+    private SimpleStringProperty AddInfo = new SimpleStringProperty("");
     //Тех/Пед персонал
-    private SimpleStringProperty TypeWork = new SimpleStringProperty();
+    private SimpleIntegerProperty TypeWork = new SimpleIntegerProperty();
     //Должность
-    private SimpleStringProperty Position = new SimpleStringProperty();
+    private SimpleStringProperty Position = new SimpleStringProperty("");
+    //День рожденья
+    private SimpleIntegerProperty ddofBirth = new SimpleIntegerProperty();
+    //Месяц рожденья
+    private SimpleIntegerProperty mmofBirth = new SimpleIntegerProperty();
+    //Год рожденья
+    private SimpleIntegerProperty yyyyofBirth = new SimpleIntegerProperty();
+
 
 
     public Staff()
@@ -36,39 +42,48 @@ public class Staff {
 
     }
 
-    public Staff(String idstaff, String surname, String name, String fathname,
-                 String dataOfbirth, String numpass,
-                 String numprivate, String address, String tel1,
-                 String tel2, String addinfo, String typework,
-                 String position) {
-        this.ID_staff = new SimpleStringProperty(idstaff);
+    public Staff(Integer idstaff, String surname, String name, String fathname,
+                 String numpass, String numprivate,
+                 String address, String tel1, String tel2, String addinfo,
+                 Integer typework, String position,
+                 Integer YYYYofBirth, Integer MMofBirth, Integer DDofBirth) {
+        this.ID_staff = new SimpleIntegerProperty(idstaff);
         this.Surname = new SimpleStringProperty(surname);
         this.Name = new SimpleStringProperty(name);
         this.FathName = new SimpleStringProperty(fathname);
-        this.DataOfBirth = new SimpleStringProperty(dataOfbirth);
         this.NumPass = new SimpleStringProperty(numpass);
         this.NumPrivate = new SimpleStringProperty(numprivate);
         this.Address = new SimpleStringProperty(address);
         this.Tel1 = new SimpleStringProperty(tel1);
         this.Tel2 = new SimpleStringProperty(tel2);
         this.AddInfo = new SimpleStringProperty(addinfo);
-        this.TypeWork = new SimpleStringProperty(typework);
+        this.TypeWork = new SimpleIntegerProperty(typework);
         this.Position = new SimpleStringProperty(position);
+        this.ddofBirth = new SimpleIntegerProperty(DDofBirth);
+        this.mmofBirth = new SimpleIntegerProperty(MMofBirth);
+        this.yyyyofBirth = new SimpleIntegerProperty(YYYYofBirth);
     }
 
     public Staff(String surname, String name, String fathname,
-                 String position) {
+                  String position) {
         this.Surname = new SimpleStringProperty(surname);
         this.Name = new SimpleStringProperty(name);
         this.FathName = new SimpleStringProperty(fathname);
         this.Position = new SimpleStringProperty(position);
     }
 
-    public String getID_staff() {
+    public Staff(String name) {
+        this.Name = new SimpleStringProperty(name);
+    }
+
+
+
+
+    public Integer getID_staff() {
         return ID_staff.get();
     }
 
-    public void setID_staff(String ID_staff) {
+    public void setID_staff(Integer ID_staff) {
         this.ID_staff.set(ID_staff);
     }
 
@@ -87,12 +102,6 @@ public class Staff {
 
     public void setFathName(String fathName) {
         this.FathName.set(fathName);
-    }
-
-    public String getDateOfBirth() {return this.DataOfBirth.get();}
-
-    public void setDataOfBirth(String dataOfBirth) {
-        this.DataOfBirth.set(dataOfBirth);
     }
 
     public String getNummPass() {return NumPass.get();}
@@ -131,9 +140,9 @@ public class Staff {
         this.AddInfo.set(addInfo);
     }
 
-    public String getTypeWork() { return TypeWork.get(); }
+    public Integer getTypeWork() { return TypeWork.get(); }
 
-    public void setTypeWork(String typeWork) {
+    public void setTypeWork(Integer typeWork) {
         this.TypeWork.set(typeWork);
     }
 
@@ -144,6 +153,18 @@ public class Staff {
     public void setPosition(String position) {
         this.Position.set(position);
     }
+
+    public Integer getDdofBirth() { return ddofBirth.get(); }
+
+    public void setDdofBirth(Integer ddofBirth) { this.ddofBirth.set(ddofBirth); }
+
+    public Integer getMmofBirth() { return mmofBirth.get(); }
+
+    public void setMmofBirth(Integer mmofBirth) { this.mmofBirth.set(mmofBirth); }
+
+    public Integer getYyyyofBirth() { return yyyyofBirth.get(); }
+
+    public void setYyyyofBirth(Integer yyyyofBirth) { this.yyyyofBirth.set(yyyyofBirth); }
 
     public SimpleStringProperty nameProperty() {
         return Name;

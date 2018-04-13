@@ -8,16 +8,19 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
+    private static String FXMLSample = "../layouts/sample.fxml";
+
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("../layouts/sample.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource(FXMLSample));
         primaryStage.setTitle("Авторизация");
-        primaryStage.setScene(new Scene(root, 320, 200));
+        Scene scene = new Scene(root, 320, 230);
+        primaryStage.setScene(scene);
         primaryStage.show();
         primaryStage.setMinHeight(primaryStage.getHeight());
         primaryStage.setMinWidth(primaryStage.getWidth());
         primaryStage.setMaxWidth(320);
-        primaryStage.setMaxHeight(160);
+        primaryStage.setMaxHeight(230);
     }
 
     public static void main(String[] args) { launch(args); }

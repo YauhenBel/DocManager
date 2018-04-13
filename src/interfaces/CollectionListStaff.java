@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 public class CollectionListStaff implements ListStaff{
 
@@ -28,14 +29,14 @@ public class CollectionListStaff implements ListStaff{
         staffList.remove(staff);
     }
 
+    public void clearList(){ staffList.clear(); }
+
     public ObservableList<Staff> getStaffList() {
      return staffList;
     }
 
     public void filltestData()
     {
-
-        //staffList.add(new Staff("gfgfgfg", "fgfg", "fzgg", "zgfdga"));
         try {
             Class.forName("com.mysql.jdbc.Driver");
             String url = "jdbc:mysql://localhost:3306/office_datas";
@@ -63,28 +64,29 @@ public class CollectionListStaff implements ListStaff{
                             + ",\ntype_work = " + rs.getString("type_work")
                             + ",\nposition = "+ rs.getString("position") + ";\n}";
                     System.out.println("info: " + str);
-                    String xId =  rs.getString("id_staff");
+                    Integer xId = Integer.parseInt(rs.getString("id_staff"));
                     String xSurname =rs.getString("surname");
                     String xName = rs.getString("name");
                     String xFathName = rs.getString("father_name");
-                    String xDateOfBirth = rs.getString("d_of_birth");
                     String xNumPassp = rs.getString("num_passp");
                     String xPasspPrivateNum = rs.getString("passp_private_num");
                     String xAddress = rs.getString("address");
                     String xTel1 = rs.getString("tel_1");
                     String xTel2 = rs.getString("tel_2");
                     String xAddInfo = rs.getString("add_info");
-                    String xTypeWork = "";
-                    if (rs.getString("type_work").equals("1"))
-                    {
-                        xTypeWork = "Педагог";
-                    } else if (rs.getString("type_work").equals("2")){
-                        xTypeWork = "Технический сотрудник";
-                    }
+                    Integer xTypeWork = Integer.parseInt(rs.getString("type_work"));
                     String xPosition = rs.getString("position");
-                    staffList.add(new Staff(xId, xSurname, xName, xFathName,
-                            xDateOfBirth, xNumPassp, xPasspPrivateNum, xAddress,
-                            xTel1, xTel2, xAddInfo, xTypeWork, xPosition));
+                    String[] yDateOfBirth = rs.getString("d_of_birth").split("-");
+
+                    ArrayList<Integer> xDate = new ArrayList<>();
+                    xDate.add(Integer.parseInt(yDateOfBirth[0]));
+                    xDate.add(Integer.parseInt(yDateOfBirth[1]));
+                    xDate.add(Integer.parseInt(yDateOfBirth[2]));
+
+                   /* staffList.add(new Staff(xId, xSurname, xName, xFathName,
+                            xNumPassp, xPasspPrivateNum, xAddress,
+                            xTel1, xTel2, xAddInfo, xTypeWork, xPosition, xDate.get(0), xDate.get(1), xDate.get(2) ));*/
+                    staffList.add(new Staff(xSurname, xName, xFathName, xPosition));
                 }
                 rs.close();
                 stmt.close();
@@ -106,7 +108,7 @@ public class CollectionListStaff implements ListStaff{
                     + ",\nSurname = " + staff.getSurname()
                     + ",\nName = " + staff.getName()
                     + ",\nFatherName = " + staff.getFathName()
-                    + ",\nDateOfBirth = " + staff.getDateOfBirth()
+                    + ",\nDateOfBirth = " + staff.getDdofBirth() + "." + staff.getMmofBirth() + "." + staff.getYyyyofBirth()
                     + ",\nNumPassp = " + staff.getNummPass()
                     + ",\nNumPrivate = " + staff.getNumPrivate()
                     + ",\nAddress = " + staff.getAddress()
