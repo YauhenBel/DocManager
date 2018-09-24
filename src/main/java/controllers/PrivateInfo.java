@@ -79,6 +79,7 @@ public class PrivateInfo implements Initializable{
     }
 
     public void setStaff(Staff staff, CollectionListStaff _collectionListStaff, int _howWasClickButton){
+        this.mCollectionListStaff = _collectionListStaff;
         if (staff == null){
             staff = new Staff();
             this.staff = staff;
@@ -97,7 +98,7 @@ public class PrivateInfo implements Initializable{
             textAddInfo.clear();
             checkPed.setSelected(false);
             checkTech.setSelected(false);
-            this.mCollectionListStaff = _collectionListStaff;
+
             this.mHowWasClickButton = _howWasClickButton;
             return;
         }
@@ -137,7 +138,7 @@ public class PrivateInfo implements Initializable{
                 }
                 UpdateStaff();
                 if (mHowWasClickButton == 0){
-                    mCollectionListStaff.update(staff);/*
+                    //mCollectionListStaff.update(staff);/*
                     Thread t = new Thread(() -> {
                         try {
                             mCollectionListStaff.update(staff);
@@ -146,12 +147,12 @@ public class PrivateInfo implements Initializable{
                         }
 
                     });
-                    t.start();*/
+                    t.start();
 
                 }
                 if (mHowWasClickButton == 1){
-                    mCollectionListStaff.addInDb(staff);
-                    /*Thread t = new Thread(() -> {
+                    //mCollectionListStaff.addInDb(staff);
+                    Thread t = new Thread(() -> {
                         try {
                             mCollectionListStaff.addInDb(staff);
                         } catch (Exception e) {
@@ -159,7 +160,7 @@ public class PrivateInfo implements Initializable{
                         }
 
                     });
-                    t.start();*/
+                    t.start();
 
                 }
                 break;

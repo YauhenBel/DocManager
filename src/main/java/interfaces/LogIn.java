@@ -23,32 +23,39 @@ public class LogIn implements Authorization{
      * @throws Exception
      */
     @Override
-    public Boolean sendQuery(String login, String passw) throws Exception {
+    public Boolean sendQuery(String login, String passw){
 
 
-         PreparedStatement stmt = DataSource.getConnection().prepareStatement(getSQLQuery(login, passw));
-         ResultSet resultSet = stmt.executeQuery();
-         if (resultSet.first()) {
-             while (resultSet.next()) {
-                 String str = "id_users = " + resultSet.getString("id_users") +
-                         "; id_staff = " + resultSet.getString("id_staff")
-                         + "; login = " + resultSet.getString("login") +
-                         "; passw = " + resultSet.getString("passw") +
-                         "; lvl_access = " + resultSet.getString("lvl_access");
-                 System.out.println("info: " + str);
-             }
-             resultSet.close();
-             stmt.close();
-             //connectionPool.closePool();
-             return true;
-         }
-         if (!resultSet.first()) {
-             return false;
-         }
+        try {
+            Connection connection = DataSource.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(getSQLQuery(login, passw));
+            ResultSet resultSet = stmt.executeQuery();
+            if (resultSet.first()) {
+                while (resultSet.next()) {
+                    String str = "id_users = " + resultSet.getString("id_users") +
+                            "; id_staff = " + resultSet.getString("id_staff")
+                            + "; login = " + resultSet.getString("login") +
+                            "; passw = " + resultSet.getString("passw") +
+                            "; lvl_access = " + resultSet.getString("lvl_access");
+                    System.out.println("info: " + str);
+                }
+                resultSet.close();
+                stmt.close();
+                connection.close();
+                //connectionPool.closePool();
+                return true;
+            }
+            if (!resultSet.first()) {
+                return false;
+            }
 
-         resultSet.close();
-         stmt.close();
+            resultSet.close();
+            stmt.close();
 
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return false;
     }
 

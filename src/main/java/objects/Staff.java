@@ -165,7 +165,7 @@ public class Staff {
         return mFathName;
     }
 
-
+    public SimpleStringProperty mPositionProperty() { return mPosition; }
 
     /*public Staff(String name) {
         this.mName = new SimpleStringProperty(name);
