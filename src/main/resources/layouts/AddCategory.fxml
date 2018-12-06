@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane prefHeight="126.0" prefWidth="534.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.AddCategory">
+   <children>
+      <ComboBox fx:id="cbTypeCategory" layoutX="15.0" layoutY="21.0" prefWidth="150.0" promptText="Тип категории" />
+      <ComboBox fx:id="cbLevelCategory" layoutX="180.0" layoutY="21.0" prefWidth="150.0" promptText="Степень категории" />
+      <DatePicker fx:id="dpDateCategory" layoutX="345.0" layoutY="21.0" promptText="Дата присвоения" />
+      <Button fx:id="btnSave" layoutX="189.0" layoutY="70.0" mnemonicParsing="false" onAction="#actionBtnPress" prefWidth="75.0" text="Сохранить" />
+      <Button fx:id="btnClose" layoutX="270.0" layoutY="70.0" mnemonicParsing="false" onAction="#actionBtnPress" prefWidth="75.0" text="Выйти" />
+   </children>
+</AnchorPane>

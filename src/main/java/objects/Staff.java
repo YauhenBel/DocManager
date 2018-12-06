@@ -18,8 +18,8 @@ public class Staff {
     private SimpleStringProperty mName = new SimpleStringProperty("");
     private SimpleStringProperty mFathName = new SimpleStringProperty("");
     private SimpleStringProperty mDateOfBirth = new SimpleStringProperty("");
-    private SimpleStringProperty mIdDoc = new SimpleStringProperty("");
-    private SimpleStringProperty mDocPrivetNum = new SimpleStringProperty("");
+    private SimpleStringProperty mIdNum = new SimpleStringProperty("");
+    private SimpleStringProperty mPasspNum = new SimpleStringProperty("");
     private SimpleStringProperty mAddress = new SimpleStringProperty("");
     private SimpleStringProperty mAnyAddress = new SimpleStringProperty("");
     private SimpleStringProperty mTel1 = new SimpleStringProperty("");
@@ -33,8 +33,16 @@ public class Staff {
 
     }
 
+    public Staff(Integer idstaff, String surname, String name, String fathname, String position) {
+        this.mIdstaff = new SimpleIntegerProperty(idstaff);
+        this.mSurname = new SimpleStringProperty(surname);
+        this.mName = new SimpleStringProperty(name);
+        this.mFathName = new SimpleStringProperty(fathname);
+        this.mPosition = new SimpleStringProperty(position);
+    }
+
     public Staff(Integer idstaff, String surname, String name, String fathname,
-                 String dateOfBirth, String numpass, String numprivate,
+                 String dateOfBirth, String idNum, String passpNum,
                  String address, String anyaddress, String tel1, String tel2, String addinfo,
                  Integer typework, String position) {
         this.mIdstaff = new SimpleIntegerProperty(idstaff);
@@ -42,8 +50,8 @@ public class Staff {
         this.mName = new SimpleStringProperty(name);
         this.mFathName = new SimpleStringProperty(fathname);
         this.mDateOfBirth = new SimpleStringProperty(dateOfBirth);
-        this.mIdDoc = new SimpleStringProperty(numpass);
-        this.mDocPrivetNum = new SimpleStringProperty(numprivate);
+        this.mIdNum = new SimpleStringProperty(idNum);
+        this.mPasspNum = new SimpleStringProperty(passpNum);
         this.mAddress = new SimpleStringProperty(address);
         this.mAnyAddress = new SimpleStringProperty(anyaddress);
         this.mTel1 = new SimpleStringProperty(tel1);
@@ -89,13 +97,13 @@ public class Staff {
 
     public String getmDateOfBirth() { return mDateOfBirth.get();}
 
-    public void setmIdDoc(String mIdDoc) { this.mIdDoc.set(mIdDoc);}
+    public void setmIdNum(String mIdNum) { this.mIdNum.set(mIdNum);}
 
-    public String getmIdDoc() { return mIdDoc.get();}
+    public String getmIdNum() { return mIdNum.get();}
 
-    public void setmDocPrivetNum(String mDocPrivetNum) { this.mDocPrivetNum.set(mDocPrivetNum);}
+    public void setmPasspNum(String mPasspNum) { this.mPasspNum.set(mPasspNum);}
 
-    public String getmDocPrivetNum() { return mDocPrivetNum.get();}
+    public String getmPasspNum() {return mPasspNum.get();}
 
     public void setmAddress(String mAddress) {
         this.mAddress.set(mAddress);
@@ -166,102 +174,6 @@ public class Staff {
     }
 
     public SimpleStringProperty mPositionProperty() { return mPosition; }
-
-    /*public Staff(String name) {
-        this.mName = new SimpleStringProperty(name);
-    }
-
-    public Integer getID_staff() {
-        return mID_staff.get();
-    }
-
-    public void setmID_staff(Integer ID_staff) {
-        this.mID_staff.set(ID_staff);
-    }
-
-    public String getSurname(){return Surname.get();}
-
-    public void setSurname(String surname){this.Surname.set(surname);}
-
-    public String getName(){return Name.get();}
-
-    public void setName(String name){this.Name.set(name);}
-
-    public String getFathName() {
-        return FathName.get();
-    }
-
-    public void setFathName(String fathName) {
-        this.FathName.set(fathName);
-    }
-
-    public String getNummPass() {return NumPass.get();}
-
-    public void setNumPass(String numPass) {
-        this.NumPass.set(numPass);
-    }
-
-    public String getNumPrivate() { return NumPrivate.get(); }
-
-    public void setNumPrivate(String numPrivate) {
-        this.NumPrivate.set(numPrivate);
-    }
-
-    public String getAddress() { return Address.get(); }
-
-    public void setAddress(String address) {
-        this.Address.set(address);
-    }
-
-    public String getTel1() { return Tel1.get(); }
-
-    public void setTel1(String tel1) {
-        this.Tel1.set(tel1);
-    }
-
-    public String getTel2() { return Tel2.get(); }
-
-    public void setTel2(String tel2) {
-        this.Tel2.set(tel2);
-    }
-
-    public String getAddInfo() { return AddInfo.get(); }
-
-    public void setAddInfo(String addInfo) {
-        this.AddInfo.set(addInfo);
-    }
-
-    public Integer getTypeWork() { return TypeWork.get(); }
-
-    public void setTypeWork(Integer typeWork) {
-        this.TypeWork.set(typeWork);
-    }
-
-    public String getPosition() {
-        return Position.get();
-    }
-
-    public void setPosition(String position) {
-        this.Position.set(position);
-    }
-
-    public void setDateOfBirth(String dateOfBirth) { this.DateOfBirth.set(dateOfBirth); }
-
-    public String getDateOfBirth() { return DateOfBirth.get(); }
-
-    public SimpleStringProperty NameProperty() { return Name; }
-
-    public SimpleStringProperty SurnameProperty() {
-        return Surname;
-    }
-
-    public SimpleStringProperty FathNameProperty() {
-        return FathName;
-    }
-
-    public SimpleStringProperty PositionProperty() {
-        return Position;
-    }*/
 
     @Override
     public String toString() {

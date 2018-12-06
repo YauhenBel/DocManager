@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.web.WebView?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.FinishDocuments">
+   <children>
+      <WebView prefHeight="200.0" prefWidth="200.0" />
+      <Label fx:id="label" alignment="CENTER" layoutX="15.0" layoutY="14.0" prefHeight="30.0" prefWidth="572.0" text="Список работников">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Label>
+      <TextArea fx:id="taFinishDocuments" editable="false" layoutX="14.0" layoutY="44.0" prefHeight="339.0" prefWidth="572.0" />
+   </children>
+</AnchorPane>

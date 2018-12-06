@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import org.controlsfx.control.textfield.CustomTextField?>
+
+<AnchorPane prefHeight="257.0" prefWidth="408.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.AddChild">
+   <children>
+      <Label layoutX="25.0" layoutY="14.0" prefHeight="30.0" prefWidth="70.0" text="Имя">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Label>
+      <CustomTextField fx:id="tfName" layoutX="26.0" layoutY="44.0" prefHeight="25.0" prefWidth="166.0" />
+      <Label layoutX="23.0" layoutY="135.0" prefHeight="30.0" prefWidth="150.0" text="Дата рождения">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Label>
+      <CustomTextField fx:id="tfSurname" layoutX="215.0" layoutY="44.0" prefHeight="25.0" prefWidth="166.0" />
+      <CustomTextField fx:id="tfFathName" layoutX="26.0" layoutY="99.0" prefHeight="25.0" prefWidth="166.0" />
+      <DatePicker fx:id="dpBithDay" layoutX="211.0" layoutY="138.0" />
+      <Label layoutX="215.0" layoutY="14.0" prefHeight="30.0" prefWidth="105.0" text="Фамилия">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Label>
+      <Button fx:id="btnSaveChild" layoutX="111.0" layoutY="178.0" mnemonicParsing="false" onAction="#actionBtnPress" prefWidth="80.0" text="Сохранить" />
+      <Label layoutX="25.0" layoutY="69.0" prefHeight="30.0" prefWidth="105.0" text="Отчество">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Label>
+      <Button fx:id="btnCloseChild" layoutX="193.0" layoutY="178.0" mnemonicParsing="false" onAction="#actionBtnPress" prefWidth="80.0" text="Выйти" />
+      <Label fx:id="labelError" layoutX="15.0" layoutY="213.0" prefHeight="30.0" prefWidth="379.0" textFill="RED">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

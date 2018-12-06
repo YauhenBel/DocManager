@@ -6,19 +6,19 @@
  */
 package interfaces;
 
-import ConnectionPooling.ConnectionPool;
 
 import ConnectionPooling.DataSource;
+import Other.SetupClearButtonField;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import objects.Filter;
 import objects.Staff;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 import java.sql.*;
-import java.util.PropertyPermission;
-
-
-import static java.sql.Types.NULL;
 
 /**
  * This class for connects with DB
@@ -28,177 +28,27 @@ public class CollectionListStaff implements ListStaff {
     private ObservableList<Staff> staffList =
             FXCollections.observableArrayList();
     private Connection connection;
+    private int colFinishWorkers, colFinishMed;
+    private String listWorkers, listmed;
+    private Filter filter = null;
 
-    /**
-     * Add new staff in DB
-     */
-    @Override
-    public void addInDb(Staff staff) {
-        PreparedStatement insertStaff = null;
-        PreparedStatement insertContacts = null;
-        PreparedStatement insertDateOfBirth = null;
-        PreparedStatement insertDocuments = null;
-        PreparedStatement selectStaff = null;
-        ResultSet resultSet = null;
-
-        try {
-            connection = DataSource.getConnection();
-            connection.setAutoCommit(false);
-            insertStaff = connection.prepareStatement(
-                    "INSERT INTO staff (idStaff, surname, name, fatherName, " +
-                            "typeWork, position, addInfo) " +
-                            "VALUES(?, ?, ?, ?, ?, ?, ?)", PreparedStatement.RETURN_GENERATED_KEYS);
-
-            insertContacts = connection.prepareStatement(
-                    "INSERT INTO contacts (idStaff, address, anyAddress, tel1, tel2) " +
-                            "VALUES(?, ?, ?, ?, ?)");
-
-            insertDateOfBirth = connection.prepareStatement(
-                    "INSERT INTO dateofbirth (idStaff, dateOfBirth) " +
-                            "VALUES(?, ?)");
-
-            insertDocuments = connection.prepareStatement(
-                    "INSERT INTO documents (idStaff, idDoc, privateNum) " +
-                            "VALUES(?, ?, ?)");
-
-            selectStaff = connection.prepareStatement("SELECT `staff`.`idStaff`, " +
-                    "`staff`.`surname`, " +
-                    "`staff`.`name`, " +
-                    "`staff`.`fatherName`, " +
-                    "`dateofbirth`.`dateOfBirth`, " +
-                    "`documents`.`idDoc`, " +
-                    "`documents`.`privateNum`, " +
-                    "`contacts`.`address`, " +
-                    "`contacts`.`anyAddress`, " +
-                    "`contacts`.`tel1`, " +
-                    "`contacts`.`tel2`,  " +
-                    "`staff`.`addInfo`, " +
-                    "`staff`.`typeWork`, " +
-                    "`staff`.`position` " +
-                    "FROM `staff` JOIN `dateofbirth` ON `dateofbirth`.`idStaff` = `staff`.`idStaff` " +
-                    "INNER JOIN `contacts` ON `contacts`.`idStaff` = `staff`.`idStaff` " +
-                    "INNER JOIN `documents` ON `documents`.`idStaff` = `staff`.`idStaff` WHERE `staff`.`idStaff` = ?");
-
-
-            insertStaff.setNull(1, NULL);
-            insertStaff.setString(2, staff.getmSurname());
-            insertStaff.setString(3, staff.getmName());
-            insertStaff.setString(4, staff.getmFathName());
-            insertStaff.setInt(5, staff.getmTypeWork());
-            insertStaff.setString(6, staff.getmPosition());
-            insertStaff.setString(7, staff.getmAddInfo());
-            insertStaff.executeUpdate();
-            resultSet = insertStaff.getGeneratedKeys();
-            String lastId = null;
-            while (resultSet.next()) {
-                lastId = resultSet.getString(1);
-                System.out.println(resultSet.getString(1));
-            }
-
-            //insert data in "contacts" table
-            insertContacts.setInt(1, Integer.parseInt(lastId));
-            insertContacts.setString(2, staff.getmAddress());
-            insertContacts.setString(3, staff.getmAnyAddress());
-            insertContacts.setString(4, staff.getmTel1());
-            insertContacts.setString(5, staff.getmTel2());
-            insertContacts.executeUpdate();
-
-            //insert data in "dateofbirth" table
-
-            insertDateOfBirth.setInt(1, Integer.parseInt(lastId));
-            insertDateOfBirth.setString(2, staff.getmDateOfBirth());
-            insertDateOfBirth.executeUpdate();
-
-            //insert data in "documents" table
-
-            insertDocuments.setInt(1, Integer.parseInt(lastId));
-            insertDocuments.setString(2, staff.getmIdDoc());
-            insertDocuments.setString(3, staff.getmDocPrivetNum());
-            insertDocuments.executeUpdate();
-
-            //return a new data
-
-            selectStaff.setString(1, lastId);
-            System.out.println();
-            for (int i = 0; i < 100; i++) System.out.print("-");
-            processAnswer(selectStaff.executeQuery());
-            connection.commit();
-            //resultSet.close();
-            //connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            if (connection != null){
-                try {
-                    System.err.print("Transaction is being rolled back");
-                    connection.rollback();
-                } catch(SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        } finally {
-
-                try {
-                    if (insertStaff != null) insertStaff.close();
-                    if (insertContacts != null) insertContacts.close();
-                    if (insertDocuments != null) insertDocuments.close();
-                    if (insertDateOfBirth != null) insertDateOfBirth.close();
-                    if (selectStaff != null) selectStaff.close();
-                    resultSet.close();
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-        }
-
-    }
+    private static Logger logger = LogManager.getLogger();
 
     /**
      * Add staf in List
      *
      * @param staff
      */
-    public void addS(Staff staff) {
-        staffList.add(staff);
+    public Staff addS(Staff staff) {
+        logger.info("addS");
+
+        Staff staff1 = new Staff(staff.getmIdstaff(), staff.getmSurname(), staff.getmName(), staff.getmFathName(),
+                staff.getmPosition());
+
+        staffList.add(staff1);
+
+        return staff1;
     }
-
-    /**
-     * Update staff's select in DB
-     *
-     * @param staff
-     */
-    @Override
-    public void update(Staff staff) {
-
-        System.out.println("Update");
-        try {
-            connection = DataSource.getConnection();
-            PreparedStatement preparedStatement =
-                    connection.prepareStatement("UPDATE staff "+
-                            "SET " +
-                            "surname = ?, " +
-                            "name = ?, " +
-                            "fatherName = ?, " +
-                            "typeWork = ?, " +
-                            "position = ?, " +
-                            "addInfo = ? " +
-                            "WHERE idStaff = ?");
-            preparedStatement.setString(1, staff.getmSurname());
-            preparedStatement.setString(2, staff.getmName());
-            preparedStatement.setString(3, staff.getmFathName());
-            preparedStatement.setInt(4, staff.getmTypeWork());
-            preparedStatement.setString(5, staff.getmPosition());
-            preparedStatement.setString(6, staff.getmAddInfo());
-            preparedStatement.setInt(7, staff.getmIdstaff());
-
-
-            preparedStatement.executeUpdate();
-            preparedStatement.close();
-            connection.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 
     /**
      * Deleted select of staff from db and list
@@ -207,26 +57,35 @@ public class CollectionListStaff implements ListStaff {
      */
     @Override
     public void delete(Staff staff){
+        logger.info("delete");
+        System.out.println("Id = " + staff.getmIdstaff());
+        PreparedStatement preparedStatement = null;
         try {
             connection = DataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM staff"
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement("DELETE FROM staff"
                     + " WHERE staff.idStaff = ?");
             preparedStatement.setInt(1, staff.getmIdstaff());
             preparedStatement.executeUpdate();
-            preparedStatement.close();
-            connection.close();
+            connection.commit();
             staffList.remove(staff);
         } catch (SQLException e) {
             e.printStackTrace();
+            logger.error(e.getMessage());
+            SetupClearButtonField.closeConnections(connection);
+        }finally {
+            SetupClearButtonField.closeConnections(preparedStatement, connection);
         }
 
     }
 
     public void clearList() {
+        logger.info("clearList");
         staffList.clear();
     }
 
     public ObservableList<Staff> getStaffList() {
+        logger.info("getStaffList");
         return staffList;
     }
 
@@ -234,31 +93,26 @@ public class CollectionListStaff implements ListStaff {
      * Download data from DB
      */
     public void fillData(){
+        logger.info("fillData");
+        PreparedStatement preparedStatement = null;
         try {
             connection = DataSource.getConnection();
-            PreparedStatement preparedStatement =
-                    DataSource.getConnection().prepareStatement("SELECT `staff`.`idStaff`, " +
+            connection.setAutoCommit(false);
+            preparedStatement =
+                    connection.prepareStatement("SELECT `staff`.`idStaff`, " +
                             "`staff`.`surname`, " +
                             "`staff`.`name`, " +
                             "`staff`.`fatherName`, " +
-                            "`dateofbirth`.`dateOfBirth`, " +
-                            "`documents`.`idDoc`, " +
-                            "`documents`.`privateNum`, " +
-                            "`contacts`.`address`, " +
-                            "`contacts`.`anyAddress`, " +
-                            "`contacts`.`tel1`, " +
-                            "`contacts`.`tel2`,  " +
-                            "`staff`.`addInfo`, " +
-                            "`staff`.`typeWork`, " +
                             "`staff`.`position` " +
-                            "FROM `staff` JOIN `dateofbirth` ON `dateofbirth`.`idStaff` = `staff`.`idStaff` " +
-                            "INNER JOIN `contacts` ON `contacts`.`idStaff` = `staff`.`idStaff` " +
-                            "INNER JOIN `documents` ON `documents`.`idStaff` = `staff`.`idStaff`");
+                            "FROM `staff`");
             processAnswer(preparedStatement.executeQuery());
-            preparedStatement.close();
-            connection.close();
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
+            logger.error(e.getMessage());
+            SetupClearButtonField.closeConnections(connection);
+        }finally {
+            SetupClearButtonField.closeConnections(preparedStatement, connection);
         }
 
     }
@@ -269,45 +123,348 @@ public class CollectionListStaff implements ListStaff {
      * @param rs
      * @throws SQLException
      */
-    private void processAnswer(ResultSet rs) throws SQLException {
+    public void processAnswer(ResultSet rs) throws SQLException {
+        logger.fatal("processAnswer");
         while (rs.next()) {
-            for (int i = 0; i < 100; i++) System.out.print("-");
-            System.out.println();
-            String str = "\nidStaff = " + rs.getString("idStaff")
-                    + "\nsurname = " + rs.getString("surname")
-                    + "\nname = " + rs.getString("name")
-                    + "\nfatherName = " + rs.getString("fatherName")
-                    + "\ndateOfBirth = " + rs.getString("dateOfBirth")
-                    + "\nidDoc = " + rs.getString("idDoc")
-                    + "\nprivateNum = " + rs.getString("privateNum")
-                    + "\naddress = " + rs.getString("address")
-                    + "\nanyAddress = " + rs.getString("anyAddress")
-                    + "\ntel1 = " + rs.getString("tel1")
-                    + "\ntel2 = " + rs.getString("tel2")
-                    + "\naddInfo = " + rs.getString("addInfo")
-                    + "\ntypeWork = " + rs.getString("typeWork")
-                    + "\nposition = " + rs.getString("position")+"\n";
-            System.out.print("\ninfo: " + str);
+            String str = null;
+            try {
+                str = "\nidStaff = " + rs.getString("idStaff")
+                        + "\nsurname = " + rs.getString("surname")
+                        + "\nname = " + rs.getString("name")
+                        + "\nfatherName = " + rs.getString("fatherName")
+                        + "\nposition = " + rs.getString("position")+"\n";
 
-            staffList.add(new Staff(
-                    Integer.parseInt(rs.getString("idStaff")),
-                    rs.getString("surname"),
-                    rs.getString("name"),
-                    rs.getString("fatherName"),
-                    rs.getString("dateOfBirth"),
-                    rs.getString("idDoc"),
-                    rs.getString("privateNum"),
-                    rs.getString("address"),
-                    rs.getString("anyAddress"),
-                    rs.getString("tel1"),
-                    rs.getString("tel2"),
-                    rs.getString("addInfo"),
-                    Integer.parseInt(rs.getString("typeWork")),
-                    rs.getString("position")
-                    ));
+                logger.info("\ninfo:\n" + str+"\n");
+                staffList.add(new Staff(
+                        Integer.parseInt(rs.getString("idStaff")),
+                        rs.getString("surname"),
+                        rs.getString("name"),
+                        rs.getString("fatherName"),
+                        rs.getString("position")
+                ));
+            } catch (SQLException e) {
+                e.printStackTrace();
+                logger.error(e.getMessage());
+            }
+
         }
         rs.close();
     }
 
+    public void fillFinishWorkers(){
+        logger.info("fillFinishWorkers");
+        listWorkers = "";
+        colFinishWorkers = 0;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = DataSource.getConnection();
+            connection.setAutoCommit(false);
+            preparedStatement =
+                    connection.prepareStatement("SELECT `staff`.`surname`, `staff`.`name`, `staff`.`fatherName`, " +
+                            "`staff`.`position`, `contracts`.`dFinish` FROM `staff` JOIN `contracts` " +
+                            "ON `staff`.`idStaff` = `contracts`.`IdStaff` " +
+                            "WHERE TO_DAYS(`contracts`.`dFinish`) - TO_DAYS(NOW()) >= 30 " +
+                            "AND TO_DAYS(`contracts`.`dFinish`) - TO_DAYS(NOW()) <= 40");
+            processFinishWorkers(preparedStatement.executeQuery());
+            connection.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            SetupClearButtonField.closeConnections(connection);
+        }finally {
+            SetupClearButtonField.closeConnections(preparedStatement, connection);
+        }
+    }
 
+    public void fillFinishMed(){
+        logger.info("fillFinishMed");
+        listmed = "";
+        colFinishMed = 0;
+        PreparedStatement fluoro = null;
+        PreparedStatement ads = null;
+        try {
+            connection = DataSource.getConnection();
+            connection.setAutoCommit(false);
+            fluoro =
+                    connection.prepareStatement("SELECT `staff`.`surname`, `staff`.`name`, `staff`.`fatherName`, " +
+                            "`staff`.`position`, `medical`.`fluoro` FROM `staff` JOIN `medical` " +
+                            "ON `staff`.`idStaff` = `medical`.`idStaff` " +
+                            "WHERE TO_DAYS(`medical`.`fluoro`) - TO_DAYS(NOW()) >= 30 " +
+                            "AND TO_DAYS(`medical`.`fluoro`) - TO_DAYS(NOW()) <= 40");
+
+            ads =
+                    connection.prepareStatement("SELECT `staff`.`surname`, `staff`.`name`, `staff`.`fatherName`, " +
+                            "`staff`.`position`, `medical`.`ads` FROM `staff` JOIN `medical` " +
+                            "ON `staff`.`idStaff` = `medical`.`idStaff` " +
+                            "WHERE TO_DAYS(`medical`.`ads`) - TO_DAYS(NOW()) >= 30 " +
+                            "AND TO_DAYS(`medical`.`ads`) - TO_DAYS(NOW()) <= 40");
+            processFinishfluoro(fluoro.executeQuery());
+            processFinishads(ads.executeQuery());
+            connection.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            SetupClearButtonField.closeConnections(connection);
+        }finally {
+            SetupClearButtonField.closeConnections(fluoro, connection);
+            SetupClearButtonField.closeConnections(ads);
+        }
+    }
+    private void processFinishWorkers(ResultSet rs) throws SQLException {
+        logger.info("processFinishWorkers");
+        while (rs.next()) {
+            for (int i = 0; i < 100; i++) System.out.print("-");
+            String str = null;
+            try {
+                str = "\nsurname = " + rs.getString("surname")
+                        + "\nname = " + rs.getString("name")
+                        + "\nfatherName = " + rs.getString("fatherName")
+                        + "\nposition = " + rs.getString("position")
+                        + "\ndFinish = " + returnDate(rs.getString("dFinish")) +"\n";
+                logger.info("\ninfo Finish Contract:" + str);
+                listWorkers +="ФИО:" + " " + rs.getString("surname") + " " + rs.getString("name") +
+                        " " + rs.getString("name") + "\n" +
+                        "Должность: " + rs.getString("position") + "\n" +
+                        "Окончание контракта/договора: " + returnDate(rs.getString("dFinish")) + "\n\n";
+                colFinishWorkers+=1;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                logger.error(e.getMessage());
+            }
+
+        }
+        rs.close();
+    }
+
+    private void processFinishfluoro(ResultSet rs) throws SQLException {
+        logger.info("processFinishfluoro");
+        while (rs.next()) {
+            for (int i = 0; i < 100; i++) System.out.print("-");
+            String str = "\nsurname = " + rs.getString("surname")
+                    + "\nname = " + rs.getString("name")
+                    + "\nfatherName = " + rs.getString("fatherName")
+                    + "\nposition = " + rs.getString("position")
+                    + "\nfluoro = " + returnDate(rs.getString("fluoro")) +"\n";
+            logger.info("\ninfo Finish fluoro:" + str);
+            listmed +="Прививка АДС: \nФИО:" + " " + rs.getString("surname") + " " + rs.getString("name") +
+                    " " + rs.getString("name") + "\n" +
+                    "Должность: " + rs.getString("position") + "\n" +
+                    "Окончание: " + returnDate(rs.getString("fluoro")) + "\n\n";
+            colFinishMed+=1;
+
+        }
+        rs.close();
+    }
+
+    private void processFinishads(ResultSet rs) throws SQLException {
+        logger.info("processFinishads");
+        while (rs.next()) {
+            for (int i = 0; i < 100; i++) System.out.print("-");
+            String str = "\nsurname = " + rs.getString("surname")
+                    + "\nname = " + rs.getString("name")
+                    + "\nfatherName = " + rs.getString("fatherName")
+                    + "\nposition = " + rs.getString("position")
+                    + "\nads = " + returnDate(rs.getString("ads")) +"\n";
+            logger.info("\ninfo Finish fluoro:" + str);
+            listmed +="Флюорография: \nФИО:" + " " + rs.getString("surname") + " " + rs.getString("name") +
+                    " " + rs.getString("name") + "\n" +
+                    "Должность: " + rs.getString("position") + "\n" +
+                    "Окончание: " + returnDate(rs.getString("ads")) + "\n\n";
+            colFinishMed+=1;
+
+        }
+        rs.close();
+    }
+
+    private String returnDate(String date){
+        logger.info("returnDate");
+        String[] dates;
+        if (date != null){
+            dates = date.split("-");
+            return dates[2] + "." + dates[1] + "." + dates[0];
+        }
+        return  null;
+    }
+
+    public String getListWorkers(){
+        logger.info("getListWorkers");
+        return listWorkers;}
+
+    public int getColFinishWorkers() {
+        logger.info("getColFinishWorkers");
+        return colFinishWorkers;}
+
+    public String getListmed() {
+        logger.info("getListmed");
+        return listmed;}
+
+    public int getColFinishMed() {
+        logger.info("getColFinishMed");
+        return colFinishMed;}
+
+    public void toFilter(Filter filter){
+        logger.info("toFilter");
+        this.filter = filter;
+        staffList.clear();
+        PreparedStatement filterStaff = null;
+        try {
+            connection = DataSource.getConnection();
+            connection.setAutoCommit(false);
+            filterStaff =
+                    connection.prepareStatement(getQuery());
+            processAnswer(filterStaff.executeQuery());
+            connection.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            SetupClearButtonField.closeConnections(connection);
+        }finally {
+            SetupClearButtonField.closeConnections(filterStaff, connection);
+        }
+    }
+
+    private String getQuery(){
+        logger.info("getQuery");
+        int status = 0;
+        String query = "SELECT `staff`.`idStaff`, `staff`.`surname`, `staff`.`name`, " +
+                "`staff`.`fatherName`, `staff`.`position` FROM `staff` JOIN " ;
+
+        if (!filter.getYearFrom().isEmpty() || !filter.getYearTo().isEmpty()) {
+            query+="`dateofbirth` ON `dateofbirth`.`idStaff` = `staff`.`idStaff`";
+            status = 1;
+        }
+
+        if (!filter.getLengthWorkFrom().isEmpty() || !filter.getLengthWorkTo().isEmpty()){
+            if (status == 1) {
+                query+=" INNER JOIN ";
+            }else {
+                status = 1;
+            }
+
+            query+="`lengthwork` ON `lengthwork`.`idStaff` = `staff`.`idStaff`";
+        }
+
+        if (filter.getFormContract() != null){
+            if (status == 1) {
+                query+=" INNER JOIN ";
+            }else {
+                status = 1;
+            }
+
+            query+="`contracts` ON `contracts`.`idStaff` = `staff`.`idStaff`";
+        }
+
+        if (filter.getLevelCategory() != null){
+            if (status == 1) {
+                query+=" INNER JOIN ";
+            }else {
+                status = 1;
+            }
+
+            query+="`category` ON `category`.`idStaff` = `staff`.`idStaff`";
+        }
+
+        if (filter.getLevelEducation() != null){
+            if (status == 1) {
+                query+=" INNER JOIN ";
+            }else {
+                status = 1;
+            }
+
+            query+="`education` ON `education`.`idStaff` = `staff`.`idStaff`";
+        }
+
+        if (filter.getHoliday() != null){
+            if (status == 1) {
+                query+=" INNER JOIN ";
+            }else {
+                status = 1;
+            }
+
+            query+="`holidays` ON `holidays`.`idStaff` = `staff`.`idStaff`";
+        }
+
+        query+= " WHERE ";
+
+        status = 0;
+
+
+        if (!filter.getYearFrom().isEmpty()){
+            status = 1;
+            query+=" TIMESTAMPDIFF(YEAR,`dateOfBirth`,curdate()) >= " + filter.getYearFrom();
+        }
+        if (!filter.getYearTo().isEmpty()){
+            if (status == 1){
+                query+= " AND ";
+            }
+            query+=" TIMESTAMPDIFF(YEAR,`dateOfBirth`,curdate()) <= " + filter.getYearTo();
+            status = 1;
+        }
+
+        if (!filter.getLengthWorkFrom().isEmpty() && !filter.isGeneralLengthWork()){
+            if (status == 1){
+                query+= " AND ";
+            }
+            query+="`lengthwork`.`years` >= " + filter.getLengthWorkFrom();
+            status = 1;
+        }
+
+        if (!filter.getLengthWorkTo().isEmpty() && !filter.isGeneralLengthWork()){
+            if (status == 1){
+                query+= " AND ";
+            }
+            query+=" `lengthwork`.`years` <= " + filter.getLengthWorkTo();
+            status = 1;
+        }
+
+        if (!filter.getLengthWorkFrom().isEmpty() && filter.isGeneralLengthWork()){
+            if (status == 1){
+                query+= " AND ";
+            }
+            query+="`lengthwork`.`generalyears` >= " + filter.getLengthWorkFrom();
+            status = 1;
+        }
+
+        if (!filter.getLengthWorkTo().isEmpty() && filter.isGeneralLengthWork()){
+            if (status == 1){
+                query+= " AND ";
+            }
+            query+=" `lengthwork`.`generalyears` <= " + filter.getLengthWorkTo();
+            status = 1;
+        }
+
+        if (filter.getFormContract() != null){
+            if (status == 1){
+                query+= " AND ";
+            }
+            query+=" `contracts`.`type` = '" + filter.getFormContract() + "'";
+            status = 1;
+        }
+
+        if (filter.getLevelCategory() != null){
+            if (status == 1){
+                query+= " AND ";
+            }
+            query+=" `category`.`levelCategory` = '" + filter.getLevelCategory() + "'";
+            status = 1;
+        }
+
+        if (filter.getLevelEducation() != null){
+            if (status == 1){
+                query+= " AND ";
+            }
+            query+=" `education`.`levelEducation` = '" + filter.getLevelEducation() + "'";
+            status = 1;
+        }
+
+        if (filter.getHoliday() != null){
+            if (status == 1){
+                query+= " AND ";
+            }
+            query+=" `holidays`.`typeHoliday` = '" + filter.getHoliday() + "'";
+            status = 1;
+        }
+        logger.info("Фильтрующий запрос:\n" + query);
+        return query;
+    }
 }

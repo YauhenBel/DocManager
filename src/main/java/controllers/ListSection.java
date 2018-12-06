@@ -12,6 +12,8 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
@@ -21,28 +23,27 @@ import java.io.IOException;
 
 public class ListSection {
 
-    private static final String FXML_STAFF = "../layouts/ListStaff.fxml";
+    CreateGui createGui = new CreateGui();
+    String lastLogin = "";
+
+    private static Logger logger = LogManager.getLogger();
+
+    public ListSection() throws IOException {
+    }
+
+    public void setLastLogin(String lastLogin) {
+        logger.info("setLastLogin");
+        this.lastLogin = lastLogin;
+    }
 
     public void openStaffWindow(ActionEvent actionEvent) throws IOException {
-        createGui();
+        logger.info("openStaffWindow");
+        createGui.goToListStaff(lastLogin);
         Node node = (Node) actionEvent.getSource();
         Stage stage = (Stage) node.getScene().getWindow();
         stage.close();
 
     }
 
-    private void createGui() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource(FXML_STAFF));
-        Parent root = fxmlLoader.load();
-        ListStaff listStaff = fxmlLoader.getController();
 
-        Stage primaryStage = new Stage();
-        listStaff.setMainStage(primaryStage);
-        primaryStage.setTitle("Персонал");
-        primaryStage.setScene(new Scene(root, 1000, 500));
-        primaryStage.show();
-        primaryStage.setMinHeight(primaryStage.getHeight());
-        primaryStage.setMinWidth(primaryStage.getWidth());
-    }
 }

@@ -1,3 +1,7 @@
 .label{
 -fx-font-size:12pt;
 }
+
+.table-view .column-header {
+    -fx-font-size:10px;
+}
