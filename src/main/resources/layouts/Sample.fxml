@@ -5,15 +5,16 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import org.controlsfx.control.textfield.CustomPasswordField?>
 <?import org.controlsfx.control.textfield.CustomTextField?>
 
-<Pane maxHeight="228.0" maxWidth="320.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="220.0" prefWidth="220.0" stylesheets="/styles/Sample.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Controller">
+<Pane maxHeight="260.0" maxWidth="320.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="240.0" prefWidth="220.0" stylesheets="/styles/Sample.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Controller">
    <children>
-      <VBox layoutX="35.0" layoutY="29.0" prefHeight="118.0" prefWidth="150.0">
+      <VBox layoutX="35.0" layoutY="37.0" prefHeight="118.0" prefWidth="150.0">
          <children>
             <CustomTextField fx:id="tfLogin" alignment="CENTER" onAction="#logIn" prefHeight="25.0" prefWidth="155.0" promptText="Логин">
                <VBox.margin>
@@ -32,7 +33,7 @@
             </Button>
          </children>
       </VBox>
-      <Label fx:id="labelErrors" contentDisplay="CENTER" layoutY="160.0" prefHeight="17.0" prefWidth="220.0" textAlignment="CENTER" textFill="#ee0000" textOverrun="CLIP">
+      <Label fx:id="labelErrors" contentDisplay="CENTER" layoutY="168.0" prefHeight="17.0" prefWidth="220.0" textAlignment="CENTER" textFill="#ee0000" textOverrun="CLIP">
          <font>
             <Font size="14.0" />
          </font>
@@ -43,5 +44,6 @@
           <MenuItem mnemonicParsing="false" onAction="#menuAboutProgram" text="О программе" />
         </items>
       </MenuButton>
+      <ProgressIndicator fx:id="progressIndicator" layoutX="179.0" layoutY="188.0" prefHeight="38.0" prefWidth="34.0" />
    </children>
 </Pane>

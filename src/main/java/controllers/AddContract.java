@@ -23,6 +23,7 @@ import java.util.ResourceBundle;
 public class AddContract implements Initializable {
 
 
+    public Button btnSave;
     @FXML private ComboBox<String> cbTypeContract;
     @FXML private DatePicker dpStartContract;
     @FXML private DatePicker dpFinishContract;
@@ -54,9 +55,12 @@ public class AddContract implements Initializable {
     }
 
     public void setContract(CollectionListContract collectionListContract,
-                            Contract contract, Label lengthWork, Label generalLengthWork){
+                            Contract contract, Label lengthWork,
+                            Label generalLengthWork, int rootLvl){
         logger.info("setContract  - 1");
 
+        if (rootLvl == 2) btnSave.setDisable(true);
+        else btnSave.setDisable(false);
         this.lengthWork = lengthWork;
         this.generalLengthWork = generalLengthWork;
 

@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 public class AddRZO implements Initializable {
+    @FXML public Button btnSaveRZO;
     @FXML private CustomTextField tfPercent;
     @FXML private CustomTextField tfOrderNumber;
     @FXML private CustomTextField tfProphesy;
@@ -48,8 +49,10 @@ public class AddRZO implements Initializable {
     }
 
     public void setRZO(CollectionListRZO collectionListRZO,
-                         RZO rzo){
+                         RZO rzo, int rootLvl){
         logger.info("setRZO - 1");
+        if (rootLvl == 2) btnSaveRZO.setDisable(true);
+        else btnSaveRZO.setDisable(true);
         this.collectionListRZO = collectionListRZO;
         this.rzo = rzo;
         tfPercent.setText(rzo.getPercent());

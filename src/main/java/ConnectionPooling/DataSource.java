@@ -18,7 +18,9 @@ public class DataSource {
     private static Logger logger = LogManager.getLogger();
 
     static {
+        logger.error("Настройка конфигурации сети");
         getAddress();
+
         config.setJdbcUrl(address + "?zeroDateTimeBehavior=convertToNull&" +
                 "useUnicode=true&characterEncoding=utf-8" );
         config.setUsername( "root" );
@@ -26,7 +28,15 @@ public class DataSource {
         config.addDataSourceProperty( "cachePrepStmts" , "true" );
         config.addDataSourceProperty( "prepStmtCacheSize" , "250" );
         config.addDataSourceProperty( "prepStmtCacheSqlLimit" , "2048" );
-        ds = new HikariDataSource( config );
+
+        try {
+            ds = new HikariDataSource( config );
+        }catch (Exception e){
+            logger.error("Ошибка");
+            ds = null;
+
+        }
+
     }
 
     private static void getAddress(){
@@ -56,7 +66,29 @@ public class DataSource {
 
     public static Connection getConnection() throws SQLException {
         logger.info("getConnection");
+
+        if (ds == null){
+            logger.info("ds == null");
+            return null;
+        }
         return ds.getConnection();
+    }
+
+    public static void clearAddress(){
+        //logger.info("getAdr");
+        //config = new HikariConfig();
+        address = "";
+        getAddress();
+        config.setJdbcUrl(address + "?zeroDateTimeBehavior=convertToNull&" +
+                "useUnicode=true&characterEncoding=utf-8" );
+        try {
+            ds = new HikariDataSource( config );
+        }catch (Exception e){
+            logger.error("Ошибка");
+            ds = null;
+
+        }
+
     }
 
 

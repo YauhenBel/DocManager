@@ -6,6 +6,7 @@
  */
 package objects;
 
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -22,6 +23,7 @@ public class Staff {
     private SimpleStringProperty mPasspNum = new SimpleStringProperty("");
     private SimpleStringProperty mAddress = new SimpleStringProperty("");
     private SimpleStringProperty mAnyAddress = new SimpleStringProperty("");
+    private SimpleBooleanProperty isSameAddress = new SimpleBooleanProperty(false);
     private SimpleStringProperty mTel1 = new SimpleStringProperty("");
     private SimpleStringProperty mTel2 = new SimpleStringProperty("");
     private SimpleStringProperty mAddInfo = new SimpleStringProperty("");
@@ -43,7 +45,7 @@ public class Staff {
 
     public Staff(Integer idstaff, String surname, String name, String fathname,
                  String dateOfBirth, String idNum, String passpNum,
-                 String address, String anyaddress, String tel1, String tel2, String addinfo,
+                 String address, String anyaddress, Boolean isSameAddress, String tel1, String tel2, String addinfo,
                  Integer typework, String position) {
         this.mIdstaff = new SimpleIntegerProperty(idstaff);
         this.mSurname = new SimpleStringProperty(surname);
@@ -54,6 +56,7 @@ public class Staff {
         this.mPasspNum = new SimpleStringProperty(passpNum);
         this.mAddress = new SimpleStringProperty(address);
         this.mAnyAddress = new SimpleStringProperty(anyaddress);
+        this.isSameAddress = new SimpleBooleanProperty(isSameAddress);
         this.mTel1 = new SimpleStringProperty(tel1);
         this.mTel2 = new SimpleStringProperty(tel2);
         this.mAddInfo = new SimpleStringProperty(addinfo);
@@ -174,6 +177,12 @@ public class Staff {
     }
 
     public SimpleStringProperty mPositionProperty() { return mPosition; }
+
+    public boolean getIsIsSameAddress() { return isSameAddress.get(); }
+
+    public SimpleBooleanProperty isSameAddressProperty() { return isSameAddress; }
+
+    public void setIsSameAddress(boolean isSameAddress) {  this.isSameAddress.set(isSameAddress); }
 
     @Override
     public String toString() {

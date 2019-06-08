@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 public class AddChild implements Initializable {
+    @FXML public Button btnSaveChild;
     @FXML private CustomTextField tfName;
     @FXML private CustomTextField tfSurname;
     @FXML private CustomTextField tfFathName;
@@ -46,8 +47,10 @@ public class AddChild implements Initializable {
     }
 
     public void setChild(CollectionListChildren collectionListChildren,
-                         Child child){
+                         Child child, int rootLvl){
         logger.info("setChild - 1");
+        if (rootLvl == 2) btnSaveChild.setDisable(true);
+        else btnSaveChild.setDisable(false);
         mCollectionListChildren = collectionListChildren;
         this.mChild = child;
         tfName.setText(mChild.getmName());
@@ -57,7 +60,8 @@ public class AddChild implements Initializable {
             dpBithDay.setValue(null);
         }else {
             String[] dateS = child.getmDateOfBirth().split("\\.");
-            dpBithDay.setValue(LocalDate.parse(dateS[2] + "-" + dateS[1] + "-" + dateS[0]));
+            dpBithDay.setValue(LocalDate.parse(dateS[2] + "-" + dateS[1] +
+                    "-" + dateS[0]));
         }
         howButtonPressed = 0;
     }

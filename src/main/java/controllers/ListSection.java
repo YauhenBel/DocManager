@@ -24,21 +24,25 @@ import java.io.IOException;
 public class ListSection {
 
     CreateGui createGui = new CreateGui();
-    String lastLogin = "";
+    private String lastLogin = "";
+    private int rootLvl;
+    private Stage primaryStage;
+
 
     private static Logger logger = LogManager.getLogger();
 
     public ListSection() throws IOException {
     }
 
-    public void setLastLogin(String lastLogin) {
+    public void setMainStage(String lastLogin, int rootLvl) {
         logger.info("setLastLogin");
         this.lastLogin = lastLogin;
+        this.rootLvl = rootLvl;
     }
 
     public void openStaffWindow(ActionEvent actionEvent) throws IOException {
         logger.info("openStaffWindow");
-        createGui.goToListStaff(lastLogin);
+        createGui.goToListStaff(lastLogin, rootLvl);
         Node node = (Node) actionEvent.getSource();
         Stage stage = (Stage) node.getScene().getWindow();
         stage.close();

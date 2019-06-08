@@ -26,6 +26,7 @@ public class AddQualification implements Initializable {
     @FXML public DatePicker dpDate;
     @FXML public CustomTextField tfCol;
     @FXML public TextArea taTheme;
+    @FXML public Button btnSaveQualification;
 
     private CollectionListQualifications mCollectionListQualifications;
     private Qualification mQualification;
@@ -43,9 +44,10 @@ public class AddQualification implements Initializable {
     }
 
     public void setQualification(CollectionListQualifications collectionListQualifications,
-                             Qualification qualification){
+                             Qualification qualification, int rootLvl){
         logger.info("setQualification - 1");
-
+        if (rootLvl == 2) btnSaveQualification.setDisable(true);
+        else btnSaveQualification.setDisable(false);
         mCollectionListQualifications = collectionListQualifications;
         this.mQualification = qualification;
         tfWhat.setText(mQualification.getmWhat());
@@ -65,6 +67,7 @@ public class AddQualification implements Initializable {
                              int idStaff){
         logger.info("setQualification - 0");
         mCollectionListQualifications = collectionListQualifications;
+
         this.idStaff = idStaff;
         this.mQualification = new Qualification();
         tfWhat.clear();

@@ -31,6 +31,7 @@ public class GetPersonalInformation implements PersonalInformation {
                             "`documents`.`passpNum`, " +
                             "`contacts`.`address`, " +
                             "`contacts`.`anyAddress`, " +
+                            "`contacts`.`isSameAddress`, " +
                             "`contacts`.`tel1`, " +
                             "`contacts`.`tel2`,  " +
                             "`staff`.`addInfo`, " +
@@ -64,6 +65,7 @@ public class GetPersonalInformation implements PersonalInformation {
                         + "\npasspNum = " + rs.getString("passpNum")
                         + "\naddress = " + rs.getString("address")
                         + "\nanyAddress = " + rs.getString("anyAddress")
+                        + "\nisSameAddress = " + rs.getBoolean("isSameAddress")
                         + "\ntel1 = " + rs.getString("tel1")
                         + "\ntel2 = " + rs.getString("tel2")
                         + "\naddInfo = " + rs.getString("addInfo")
@@ -83,6 +85,7 @@ public class GetPersonalInformation implements PersonalInformation {
                         rs.getString("passpNum"),
                         rs.getString("address"),
                         rs.getString("anyAddress"),
+                        rs.getBoolean("isSameAddress"),
                         rs.getString("tel1"),
                         rs.getString("tel2"),
                         rs.getString("addInfo"),
@@ -92,7 +95,6 @@ public class GetPersonalInformation implements PersonalInformation {
                 e.printStackTrace();
                 logger.error(e.getMessage());
             }
-
 
         }
         rs.close();
@@ -118,8 +120,8 @@ public class GetPersonalInformation implements PersonalInformation {
                             "VALUES(?, ?, ?, ?, ?, ?, ?, ?)", PreparedStatement.RETURN_GENERATED_KEYS);
 
             insertContacts = connection.prepareStatement(
-                    "INSERT INTO contacts (idStaff, address, anyAddress, tel1, tel2) " +
-                            "VALUES(?, ?, ?, ?, ?)");
+                    "INSERT INTO contacts (idStaff, address, anyAddress, isSameAddress, tel1, tel2) " +
+                            "VALUES(?, ?, ?, ?, ?, ?)");
 
             insertDateOfBirth = connection.prepareStatement(
                     "INSERT INTO dateofbirth (idStaff, dateOfBirth) " +
@@ -172,8 +174,9 @@ public class GetPersonalInformation implements PersonalInformation {
             insertContacts.setInt(1, Integer.parseInt(lastId));
             insertContacts.setString(2, staff.getmAddress());
             insertContacts.setString(3, staff.getmAnyAddress());
-            insertContacts.setString(4, staff.getmTel1());
-            insertContacts.setString(5, staff.getmTel2());
+            insertContacts.setBoolean(4, staff.getIsIsSameAddress());
+            insertContacts.setString(5, staff.getmTel1());
+            insertContacts.setString(6, staff.getmTel2());
             insertContacts.executeUpdate();
 
             //insert data in "dateofbirth" table
@@ -199,7 +202,7 @@ public class GetPersonalInformation implements PersonalInformation {
             insertLengthWork.setInt(2, Integer.parseInt(lastId));
             insertLengthWork.setInt(3, 0);
             insertLengthWork.setInt(4, 0);
-            insertLengthWork.setString(3, "0-0-0");
+            insertLengthWork.setString(5, "0-0-0");
 
             insertLengthWork.executeUpdate();
             processAnswer(selectStaff.executeQuery());
@@ -296,6 +299,7 @@ public class GetPersonalInformation implements PersonalInformation {
                     "SET " +
                     "address = ?, " +
                     "anyAddress = ?, " +
+                    "isSameAddress = ?, " +
                     "tel1 = ?, " +
                     "tel2 = ? " +
                     "WHERE idStaff = ?");
@@ -321,9 +325,10 @@ public class GetPersonalInformation implements PersonalInformation {
 
             updateContacts.setString(1, staff.getmAddress());
             updateContacts.setString(2, staff.getmAnyAddress());
-            updateContacts.setString(3, staff.getmTel1());
-            updateContacts.setString(4, staff.getmTel2());
-            updateContacts.setInt(5, staff.getmIdstaff());
+            updateContacts.setBoolean(3, staff.getIsIsSameAddress());
+            updateContacts.setString(4, staff.getmTel1());
+            updateContacts.setString(5, staff.getmTel2());
+            updateContacts.setInt(6, staff.getmIdstaff());
 
             updateDateOfBirth.setString(1, staff.getmDateOfBirth());
             updateDateOfBirth.setInt(2, staff.getmIdstaff());

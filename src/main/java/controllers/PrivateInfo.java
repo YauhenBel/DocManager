@@ -7,6 +7,7 @@
 package controllers;
 
 import Other.SetupClearButtonField;
+import com.mysql.fabric.FabricCommunicationException;
 import interfaces.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -20,9 +21,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 import objects.*;
 
@@ -34,6 +37,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 /**
@@ -109,6 +113,36 @@ public class PrivateInfo implements Initializable{
     public CustomTextField tfOutsideLengthWorkYears;
     public CustomTextField tfOutsideLengthWorkMonth;
     public CustomTextField tfOutsideLengthWorkDays;
+    @FXML public DatePicker dateContractTo;
+    @FXML public DatePicker dateContractFrom;
+    @FXML public CheckBox sameAddress;
+    @FXML public Button addNewEducation;
+    @FXML public Button openEducation;
+    @FXML public Button delEducation;
+    @FXML public Button addNewQualification;
+    @FXML public Button openQualification;
+    @FXML public Button delQualification;
+    @FXML public Button btnOpenContract;
+    @FXML public Button btnAddHoliday;
+    @FXML public Button btnOpenHoliday;
+    @FXML public Button btnDelHoliday;
+    @FXML public Button btnAddContract;
+    @FXML public Button btnDelContract;
+    @FXML public Button btnSaveOutsideLengthWork;
+    @FXML public Button btnSaveLengthOfContract;
+    @FXML public Button addNewChild;
+    @FXML public Button openChild;
+    @FXML public Button delChild;
+    @FXML public Button addNewParthnership;
+    @FXML public Button openRZO;
+    @FXML public Button delRZO;
+    @FXML public Button addNewRZO;
+    @FXML public Button openParthnership;
+    @FXML public Button delParthnership;
+    @FXML public Button saveMedical;
+    @FXML public Button btnAddCategory;
+    @FXML public Button btnOpenCategory;
+    @FXML public Button btnDelCategory;
 
 
     @FXML private TableView<Contract> tableContracts;
@@ -145,6 +179,7 @@ public class PrivateInfo implements Initializable{
     private Contract contract;
     private ObjectMedical objectMedical;
     private Medical medical;
+    private int rootLvl;
 
 
     private Stage qualificationStage, educationStage, childStage, rzoStage, parthnerShipStage, holidayStage,
@@ -180,6 +215,8 @@ public class PrivateInfo implements Initializable{
     private AddContract addContract;
 
     private static Logger logger = LogManager.getLogger();
+
+    private double xOffset, yOffset;
 
 
 
@@ -259,7 +296,7 @@ public class PrivateInfo implements Initializable{
         tableEducation.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 addEducation.setEducation(mCollectionListEducation,
-                        tableEducation.getSelectionModel().getSelectedItem());
+                        tableEducation.getSelectionModel().getSelectedItem(), rootLvl);
                 createWindowEducation();
             }
         });
@@ -267,7 +304,7 @@ public class PrivateInfo implements Initializable{
         tableQualifications.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 addQualification.setQualification(mCollectionListQualifications,
-                        tableQualifications.getSelectionModel().getSelectedItem());
+                        tableQualifications.getSelectionModel().getSelectedItem(), rootLvl);
                 createWindowQualification();
             }
         });
@@ -275,7 +312,7 @@ public class PrivateInfo implements Initializable{
         tableChildren.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 addChild.setChild(mCollectionListChildren,
-                        tableChildren.getSelectionModel().getSelectedItem());
+                        tableChildren.getSelectionModel().getSelectedItem(), rootLvl);
                 createWindowChild();
             }
         });
@@ -283,7 +320,7 @@ public class PrivateInfo implements Initializable{
         tableRZO.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 addRZO.setRZO(collectionListRZO,
-                        tableRZO.getSelectionModel().getSelectedItem());
+                        tableRZO.getSelectionModel().getSelectedItem(), rootLvl);
                 createWindowRZO();
             }
         });
@@ -291,7 +328,7 @@ public class PrivateInfo implements Initializable{
         tableParthnerShip.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 addParthnership.setParthnership(collectionListParthnership,
-                        tableParthnerShip.getSelectionModel().getSelectedItem());
+                        tableParthnerShip.getSelectionModel().getSelectedItem(), rootLvl);
                 createWindowParthnership();
             }
         });
@@ -299,7 +336,7 @@ public class PrivateInfo implements Initializable{
         tableHolidays.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 addHoliday.setHoliday(collectionListHoliday,
-                        tableHolidays.getSelectionModel().getSelectedItem());
+                        tableHolidays.getSelectionModel().getSelectedItem(), rootLvl);
                 createWindowHoliday();
             }
         });
@@ -307,7 +344,7 @@ public class PrivateInfo implements Initializable{
         tableCategory.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 addCategory.setCategory(collectionListCategories,
-                        tableCategory.getSelectionModel().getSelectedItem());
+                        tableCategory.getSelectionModel().getSelectedItem(), rootLvl);
                 createWindowCategory();
             }
         });
@@ -315,7 +352,8 @@ public class PrivateInfo implements Initializable{
         tableContracts.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 addContract.setContract(collectionListContract,
-                        tableContracts.getSelectionModel().getSelectedItem(), labelLengthWork, labelLengthWorkGeneral);
+                        tableContracts.getSelectionModel().getSelectedItem(),
+                        labelLengthWork, labelLengthWorkGeneral, rootLvl);
                 createWindowContract();
             }
         });
@@ -345,6 +383,7 @@ public class PrivateInfo implements Initializable{
             textpasspNum.clear();
             textAddress.clear();
             textAnyAddress.clear();
+            sameAddress.setSelected(false);
             textTel1.clear();
             textTel2.clear();
             textDateOfBirth.setValue(null);
@@ -399,6 +438,8 @@ public class PrivateInfo implements Initializable{
         textpasspNum.setText(mStaffAll.getmPasspNum());
         textAddress.setText(mStaffAll.getmAddress());
         textAnyAddress.setText(mStaffAll.getmAnyAddress());
+        if (mStaffAll.getIsIsSameAddress()) sameAddress.setSelected(true);
+        else sameAddress.setSelected(false);
         textTel1.setText(mStaffAll.getmTel1());
         textTel2.setText(mStaffAll.getmTel2());
         if (mStaffAll.getmDateOfBirth() == null){
@@ -427,20 +468,6 @@ public class PrivateInfo implements Initializable{
 
     }
 
-    /*private void refreshLengthWork(){
-
-        Period period = Period.between(LocalDate.parse(contract.getdStart()), LocalDate.now());
-
-        System.out.print(period.getYears() + " years,");
-        System.out.print(period.getMonths() + " months,");
-        System.out.print(period.getDays() + " days");
-        String lengthWor = "Стаж: Годы - " + period.getYears() + ", месяцы - " + period.getMonths() +
-                ", дни - " + period.getDays() ;
-        contract.setPeriodYear(period.getYears() - contract.getPeriodYear());
-        contract.setPeriodMonth(period.getMonths() - contract.getPeriodMonth());
-        contract.setPeriodYear(period.getYears() - contract.getPeriodYear());
-        labelLengthWork.setText(lengthWor);
-    }*/
 
     private void fillTables(){
         logger.info("fillTables");
@@ -470,6 +497,11 @@ public class PrivateInfo implements Initializable{
 
         collectionListContract.fillData(staff.getmIdstaff());
         tableContracts.setItems(collectionListContract.getListContract());
+        ArrayList<String> arrayList = collectionListContract.getLengthContract();
+        if (arrayList.size() != 0 && arrayList != null) {
+            dateContractFrom.setValue(LocalDate.parse(arrayList.get(0)));
+            dateContractTo.setValue(LocalDate.parse(arrayList.get(1)));
+        }
     }
     /**Handler button pressed*/
     public void actionBtnPersInfo(ActionEvent actionEvent) {
@@ -489,8 +521,6 @@ public class PrivateInfo implements Initializable{
                 if (mHowWasClickButton == 0){
                     logger.info("updateStaff");
                     mGetPersonalInformation.update(mStaffAll);
-
-
                 }
                 if (mHowWasClickButton == 1){
                     logger.info("insertStaff");
@@ -537,7 +567,7 @@ public class PrivateInfo implements Initializable{
             case "openEducation":
                 logger.info("openEducation");
                 addEducation.setEducation(mCollectionListEducation,
-                        tableEducation.getSelectionModel().getSelectedItem());
+                        tableEducation.getSelectionModel().getSelectedItem(), rootLvl);
                 createWindowEducation();
                 break;
             case "delEducation":
@@ -552,7 +582,7 @@ public class PrivateInfo implements Initializable{
             case "openQualification":
                 logger.info("openQualification");
                 addQualification.setQualification(mCollectionListQualifications,
-                        tableQualifications.getSelectionModel().getSelectedItem());
+                        tableQualifications.getSelectionModel().getSelectedItem(), rootLvl);
                 createWindowQualification();
                 break;
             case "delQualification":
@@ -567,7 +597,7 @@ public class PrivateInfo implements Initializable{
             case "openChild":
                 logger.info("openChild");
                 addChild.setChild(mCollectionListChildren,
-                        tableChildren.getSelectionModel().getSelectedItem());
+                        tableChildren.getSelectionModel().getSelectedItem(), rootLvl);
                 createWindowChild();
                 break;
             case "delChild":
@@ -582,7 +612,7 @@ public class PrivateInfo implements Initializable{
             case "openRZO":
                 logger.info("openRZO");
                 addRZO.setRZO(collectionListRZO,
-                        tableRZO.getSelectionModel().getSelectedItem());
+                        tableRZO.getSelectionModel().getSelectedItem(), rootLvl);
                 createWindowRZO();
                 break;
             case "delRZO":
@@ -599,7 +629,7 @@ public class PrivateInfo implements Initializable{
             case "openParthnership":
                 logger.info("openParthnership");
                 addParthnership.setParthnership(collectionListParthnership,
-                        tableParthnerShip.getSelectionModel().getSelectedItem());
+                        tableParthnerShip.getSelectionModel().getSelectedItem(), rootLvl);
                 createWindowParthnership();
                 break;
             case "delParthnership":
@@ -609,7 +639,8 @@ public class PrivateInfo implements Initializable{
             case "btnOpenContract":
                 logger.info("btnOpenContract");
                 addContract.setContract(collectionListContract,
-                        tableContracts.getSelectionModel().getSelectedItem(), labelLengthWork, labelLengthWork);
+                        tableContracts.getSelectionModel().getSelectedItem(),
+                        labelLengthWork, labelLengthWork, rootLvl);
                 createWindowContract();
                 break;
             case "btnAddContract":
@@ -636,7 +667,7 @@ public class PrivateInfo implements Initializable{
             case "btnOpenHoliday":
                 logger.info("btnOpenHoliday");
                 addHoliday.setHoliday(collectionListHoliday,
-                        tableHolidays.getSelectionModel().getSelectedItem());
+                        tableHolidays.getSelectionModel().getSelectedItem(), rootLvl);
                 createWindowHoliday();
                 break;
             case "btnDelHoliday":
@@ -651,7 +682,7 @@ public class PrivateInfo implements Initializable{
             case "btnOpenCategory":
                 logger.info("btnOpenCategory");
                 addCategory.setCategory(collectionListCategories,
-                        tableCategory.getSelectionModel().getSelectedItem());
+                        tableCategory.getSelectionModel().getSelectedItem(), rootLvl);
                 createWindowCategory();
 
                 break;
@@ -665,6 +696,11 @@ public class PrivateInfo implements Initializable{
                 mGetPersonalInformation.updateOutsideYears(outsideYears, staff.getmIdstaff());
                 collectionListContract.lengthWork(labelLengthWork, labelLengthWorkGeneral);
 
+                break;
+            case "btnSaveLengthOfContract":
+                logger.info("btnSaveLengthOfContract");
+                collectionListContract.updateLengthContract(dateContractFrom.getValue().toString(),
+                        dateContractTo.getValue().toString());
                 break;
 
 
@@ -704,6 +740,7 @@ public class PrivateInfo implements Initializable{
 
     private boolean checkValues(){
         logger.info("checkValues");
+        errorInformation.setText("");
         System.out.println(textName.getText().equals(""));
         if (textName.getText().isEmpty() || textSurname.getText().isEmpty() || textFathNam.getText().isEmpty()){
             errorInformation.setText("Ошибка: поля \"Имя\", \"Фамилия\", \"Отчество\" не могут быть пустыми");
@@ -717,6 +754,12 @@ public class PrivateInfo implements Initializable{
             errorInformation.setText("Ошибка: номер пасспорта не может быть больше 9 символов");
             return false;
         }
+
+        if (textTel1.getText().length()>12 || textTel2.getText().length()>12){
+            errorInformation.setText("Номер телефона не может быть больше 12 цифр");
+            return false;
+        }
+
         return true;
     }
     /**Update object's staff*/
@@ -735,7 +778,6 @@ public class PrivateInfo implements Initializable{
         staff.setmSurname(textSurname.getText());
         staff.setmFathName(textFathNam.getText());
         staff.setmPosition(textPosition.getText());
-
         mStaffAll.setmName(textName.getText());
         mStaffAll.setmSurname(textSurname.getText());
         mStaffAll.setmFathName(textFathNam.getText());
@@ -745,14 +787,13 @@ public class PrivateInfo implements Initializable{
         mStaffAll.setmPasspNum(textpasspNum.getText());
         mStaffAll.setmTel1(textTel1.getText());
         mStaffAll.setmTel2(textTel2.getText());
-        if (textDateOfBirth.getValue() == null) {
-            mStaffAll.setmDateOfBirth(null);
-        }else {
-            mStaffAll.setmDateOfBirth(textDateOfBirth.getValue().toString());
-        }
+        if (textDateOfBirth.getValue() == null) mStaffAll.setmDateOfBirth(null);
+        else  mStaffAll.setmDateOfBirth(textDateOfBirth.getValue().toString());
         mStaffAll.setmTypeWork(typeWork);
         mStaffAll.setmAddress(textAddress.getText());
         mStaffAll.setmAnyAddress(textAnyAddress.getText());
+        if (sameAddress.isSelected()) mStaffAll.setIsSameAddress(true);
+        else mStaffAll.setIsSameAddress(false);
     }
 
     private void initLoader(){
@@ -792,7 +833,9 @@ public class PrivateInfo implements Initializable{
         if (educationStage == null) {
             educationStage = new Stage();
             educationStage.setTitle("Образование");
-            educationStage.setScene(new Scene(fxmlInfoEducation, 600, 330));
+            Scene scene = new Scene(fxmlInfoEducation, 600, 330);
+            settingScene(scene, educationStage);
+            educationStage.setScene(scene);
             educationStage.initModality(Modality.WINDOW_MODAL);
             educationStage.initOwner(mainStage);
         }
@@ -808,7 +851,9 @@ public class PrivateInfo implements Initializable{
         if (qualificationStage == null) {
             qualificationStage = new Stage();
             qualificationStage.setTitle("Квалификации");
-            qualificationStage.setScene(new Scene(fxmlInfoQualification));
+            Scene scene = new Scene(fxmlInfoQualification);
+            settingScene(scene, qualificationStage);
+            qualificationStage.setScene(scene);
             qualificationStage.initModality(Modality.WINDOW_MODAL);
             qualificationStage.initOwner(mainStage);
         }
@@ -824,7 +869,9 @@ public class PrivateInfo implements Initializable{
         if (childStage == null) {
             childStage = new Stage();
             childStage.setTitle("Ребенок");
-            childStage.setScene(new Scene(fxmlInfoChild));
+            Scene scene = new Scene(fxmlInfoChild);
+            settingScene(scene, childStage);
+            childStage.setScene(scene);
             childStage.initModality(Modality.WINDOW_MODAL);
             childStage.initOwner(mainStage);
         }
@@ -840,7 +887,9 @@ public class PrivateInfo implements Initializable{
         if (rzoStage == null) {
             rzoStage = new Stage();
             rzoStage.setTitle("РЗО");
-            rzoStage.setScene(new Scene(fxmlInfoRZO));
+            Scene scene = new Scene(fxmlInfoRZO);
+            settingScene(scene, rzoStage);
+            rzoStage.setScene(scene);
             rzoStage.initModality(Modality.WINDOW_MODAL);
             rzoStage.initOwner(mainStage);
         }
@@ -856,7 +905,9 @@ public class PrivateInfo implements Initializable{
         if (parthnerShipStage == null) {
             parthnerShipStage = new Stage();
             parthnerShipStage.setTitle("Совместительство");
-            parthnerShipStage.setScene(new Scene(fxmlInfoParthnerShip));
+            Scene scene = new Scene(fxmlInfoParthnerShip);
+            settingScene(scene, parthnerShipStage);
+            parthnerShipStage.setScene(scene);
             parthnerShipStage.initModality(Modality.WINDOW_MODAL);
             parthnerShipStage.initOwner(mainStage);
         }
@@ -872,7 +923,9 @@ public class PrivateInfo implements Initializable{
         if (holidayStage == null) {
             holidayStage = new Stage();
             holidayStage.setTitle("Отпуск");
-            holidayStage.setScene(new Scene(fxmlInfoHoliday));
+            Scene scene = new Scene(fxmlInfoHoliday);
+            settingScene(scene, holidayStage);
+            holidayStage.setScene(scene);
             holidayStage.initModality(Modality.WINDOW_MODAL);
             holidayStage.initOwner(mainStage);
         }
@@ -888,7 +941,9 @@ public class PrivateInfo implements Initializable{
         if (categoryStage == null) {
             categoryStage = new Stage();
             categoryStage.setTitle("Категория");
-            categoryStage.setScene(new Scene(fxmlInfoCategory));
+            Scene scene = new Scene(fxmlInfoCategory);
+            settingScene(scene, categoryStage);
+            categoryStage.setScene(scene);
             categoryStage.initModality(Modality.WINDOW_MODAL);
             categoryStage.initOwner(mainStage);
         }
@@ -904,7 +959,9 @@ public class PrivateInfo implements Initializable{
         if (contractStage == null) {
             contractStage = new Stage();
             contractStage.setTitle("Контракт");
-            contractStage.setScene(new Scene(fxmlInfoContract));
+            Scene scene = new Scene(fxmlInfoContract);
+            settingScene(scene, contractStage);
+            contractStage.setScene(scene);
             contractStage.initModality(Modality.APPLICATION_MODAL);
             contractStage.initOwner(mainStage);
         }
@@ -915,9 +972,83 @@ public class PrivateInfo implements Initializable{
         contractStage.setMaxWidth(contractStage.getWidth());
     }
 
-    void setMainStage(Stage mainStage) {
+    void setMainStage(Stage mainStage, int rootLvl) {
         logger.info("setMainStage");
         this.mainStage = mainStage;
+        mainStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            public void handle(WindowEvent we) {
+                System.out.println("Stage is closing");
+            }
+        });
+        this.rootLvl = rootLvl;
+        switch (rootLvl){
+            case 0:
+                btnSave.setDisable(false);
+                addNewEducation.setDisable(false);
+                delEducation.setDisable(false);
+                addNewQualification.setDisable(false);
+                delQualification.setDisable(false);
+                btnAddContract.setDisable(false);
+                btnDelContract.setDisable(false);
+                btnSaveLengthOfContract.setDisable(false);
+                btnSaveOutsideLengthWork.setDisable(false);
+                btnAddHoliday.setDisable(false);
+                btnDelHoliday.setDisable(false);
+                addNewChild.setDisable(false);
+                delChild.setDisable(false);
+                addNewRZO.setDisable(false);
+                delRZO.setDisable(false);
+                addNewParthnership.setDisable(false);
+                delParthnership.setDisable(false);
+                saveMedical.setDisable(false);
+                btnAddCategory.setDisable(false);
+                btnDelCategory.setDisable(false);
+                break;
+            case 1:
+                btnSave.setDisable(false);
+                addNewEducation.setDisable(false);
+                delEducation.setDisable(true);
+                addNewQualification.setDisable(false);
+                delQualification.setDisable(true);
+                btnAddContract.setDisable(false);
+                btnDelContract.setDisable(true);
+                btnSaveLengthOfContract.setDisable(false);
+                btnSaveOutsideLengthWork.setDisable(false);
+                btnAddHoliday.setDisable(false);
+                btnDelHoliday.setDisable(true);
+                addNewChild.setDisable(false);
+                delChild.setDisable(true);
+                addNewRZO.setDisable(false);
+                delRZO.setDisable(true);
+                addNewParthnership.setDisable(false);
+                delParthnership.setDisable(true);
+                saveMedical.setDisable(false);
+                btnAddCategory.setDisable(false);
+                btnDelCategory.setDisable(true);
+                break;
+            case 2:
+                btnSave.setDisable(true);
+                addNewEducation.setDisable(true);
+                delEducation.setDisable(true);
+                addNewQualification.setDisable(true);
+                delQualification.setDisable(true);
+                btnAddContract.setDisable(true);
+                btnDelContract.setDisable(true);
+                btnSaveLengthOfContract.setDisable(true);
+                btnSaveOutsideLengthWork.setDisable(true);
+                btnAddHoliday.setDisable(true);
+                btnDelHoliday.setDisable(true);
+                addNewChild.setDisable(true);
+                delChild.setDisable(true);
+                addNewRZO.setDisable(true);
+                delRZO.setDisable(true);
+                addNewParthnership.setDisable(true);
+                delParthnership.setDisable(true);
+                saveMedical.setDisable(true);
+                btnAddCategory.setDisable(true);
+                btnDelCategory.setDisable(true);
+                break;
+        }
         mainStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             public void handle(WindowEvent we) {
                 logger.info("Stage is close");
@@ -934,4 +1065,25 @@ public class PrivateInfo implements Initializable{
     }
 
 
+    public void doSameAddress(ActionEvent actionEvent) {
+        textAnyAddress.setText(textAddress.getText().toString());
+    }
+
+    private void settingScene(Scene scene, Stage stage){
+        scene.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(javafx.scene.input.MouseEvent event) {
+                xOffset = stage.getX() - event.getScreenX();
+                yOffset = stage.getY() - event.getScreenY();
+            }
+        });
+
+        scene.setOnMouseDragged(new EventHandler<javafx.scene.input.MouseEvent>() {
+            @Override
+            public void handle(javafx.scene.input.MouseEvent event) {
+                stage.setX(event.getScreenX() + xOffset);
+                stage.setY(event.getScreenY() + yOffset);
+            }
+        });
+    }
 }

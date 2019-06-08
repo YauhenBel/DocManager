@@ -12,6 +12,9 @@ import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -28,6 +31,8 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 import objects.Filter;
 import objects.Staff;
 
@@ -39,7 +44,6 @@ import org.controlsfx.control.textfield.TextFields;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.Observable;
 import java.util.ResourceBundle;
 
@@ -49,22 +53,24 @@ import java.util.ResourceBundle;
 
 public class ListStaff extends Observable implements Initializable {
 
-    private static final String FXML_PERSONAL_INFORMATION = "../layouts/PersonalInfo.fxml";
-    private static final String FXML_FINISH_CONTRACTS = "../layouts/FinishDocuments.fxml";
+    private static final String FXML_PERSONAL_INFORMATION = "/layouts/PersonalInfo.fxml";
+    private static final String FXML_FINISH_CONTRACTS = "/layouts/FinishDocuments.fxml";
+    private static final String FXML_BIG_FILTER = "/layouts/BigFilter.fxml";
 
     @FXML public Button btnOpenFinishContracts;
     @FXML public  Button btnOpenFinishMedical;
 
-    @FXML public ComboBox cbFormContract;
+    @FXML public ComboBox<String> cbFormContract;
     @FXML public CustomTextField tfAgeFrom;
     @FXML public CustomTextField tfAgeTo;
-    @FXML public ComboBox cbCategory;
-    @FXML public ComboBox cbEducation;
+    @FXML public ComboBox<String> cbCategory;
+    @FXML public ComboBox<String> cbEducation;
     @FXML public CustomTextField tfLengthWorkFrom;
     @FXML public CustomTextField tfLengthWorkTo;
     @FXML public Button btnFilter;
-    @FXML public ComboBox cbHoliday;
+    @FXML public ComboBox<String> cbHoliday;
     @FXML public CheckBox cbGeneralLengthWork;
+    @FXML public Label lSLabelError;
 
     private Stage mainStage;
     @FXML public Button btnOpen;
@@ -79,11 +85,13 @@ public class ListStaff extends Observable implements Initializable {
     @FXML public CustomTextField tfSearch;
 
     private CollectionListStaff collectionListStaff = new CollectionListStaff();
-    private Stage primaryStage, finishContractsStage;
+    private Stage primaryStage, finishContractsStage, bigFilterStage;
     private FXMLLoader fxmlLoader = new FXMLLoader();
     private FXMLLoader fxmlLoaderFinishContracts = new FXMLLoader();
-    private Parent fxmlPersonalInfo, fxmlFinishContracts;
+    private FXMLLoader fxmlLoaderBigFilter = new FXMLLoader();
+    private Parent fxmlPersonalInfo, fxmlFinishContracts, fxmlBigFilter;
     private PrivateInfo privateInfo;
+    private BigFilter bigFilter;
     private Node clears;
     private ObservableList<Staff> backupList;
 
@@ -91,11 +99,13 @@ public class ListStaff extends Observable implements Initializable {
 
     private CollectionListContract collectionListContract = new CollectionListContract();
 
-    private Filter filter = new Filter();
+    private Filter filter;
 
     String lastLogin = "";
 
     private Boolean status = false;
+
+    private int rootLvl = 0;
 
     ObservableList<String> typeContract =
             FXCollections.observableArrayList(
@@ -131,6 +141,8 @@ public class ListStaff extends Observable implements Initializable {
 
     private static Logger logger = LogManager.getLogger();
 
+    private double xOffset, yOffset;
+
     /**Initializing data for work*/
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -159,6 +171,7 @@ public class ListStaff extends Observable implements Initializable {
         cbEducation.setItems(levelEducation);
         cbFormContract.setItems(typeContract);
         cbHoliday.setItems(types);
+        lSLabelError.setText("");
 
     }
 
@@ -302,11 +315,16 @@ public class ListStaff extends Observable implements Initializable {
             case "btnFilter":
                 logger.info("btnFilter");
                 getFilter();
-                collectionListStaff.toFilter(filter);
-                status = true;
+                if (!collectionListStaff.toFilter(filter)){
+                    lSLabelError.setText("Укажите хотя бы один критерий для поиска.");
+                    return;
+                } else {
+                    status = true;
+                }
                 break;
             case "btnCloseFilter":
                 logger.info("btnCloseFilter");
+                lSLabelError.setText("");
                 if (status){
                     collectionListStaff.getStaffList().clear();
                     collectionListStaff.fillData();
@@ -323,12 +341,61 @@ public class ListStaff extends Observable implements Initializable {
                 cbGeneralLengthWork.setSelected(false);
                 status = false;
                 break;
+            case "bigFilterOpen":
+                logger.info("bigFilterOpen");
+                try {
+                    createBigFilterGUI();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                filter = bigFilter.getBigFilter();
+                if (filter == null){
+                    return;
+                }
+                //filter.printInfo();
+                if (!collectionListStaff.toFilter(filter)){
+                    lSLabelError.setText("Укажите хотя бы один критерий для поиска.");
+                    return;
+                } else {
+                    lSLabelError.setText("");
+                    status = true;
+                }
+                status = true;
+                break;
+            case "logOut":
+                try {
+                    logOut(actionEvent);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
         }
+    }
+
+    public void logOut(ActionEvent actionEvent) throws IOException {
+        logger.info("logOut");
+        CreateGui createGui = new CreateGui();
+        createGui.backToLogIn();
+        Node node = (Node) actionEvent.getSource();
+        Stage stage = (Stage) node.getScene().getWindow();
+        stage.close();
+
     }
 
     private void getFilter(){
          logger.info("getFilter");
-         filter.setYearFrom(tfAgeFrom.getText());
+         filter = new Filter(
+                 tfAgeFrom,
+                 tfAgeTo,
+                 tfLengthWorkFrom,
+                 tfLengthWorkTo,
+                 cbFormContract,
+                 cbEducation,
+                 cbCategory,
+                 cbHoliday,
+                 cbGeneralLengthWork
+                 );
+         /*filter.setYearFrom(tfAgeFrom.getText());
          filter.setYearTo(tfAgeTo.getText());
          filter.setLengthWorkFrom(tfLengthWorkFrom.getText());
          filter.setLengthWorkTo(tfLengthWorkTo.getText());
@@ -356,7 +423,7 @@ public class ListStaff extends Observable implements Initializable {
              filter.setGeneralLengthWork(false);
          }else {
              filter.setGeneralLengthWork(true);
-         }
+         }*/
 
          filter.printInfo();
     }
@@ -365,9 +432,11 @@ public class ListStaff extends Observable implements Initializable {
         logger.info("createGui");
         if (primaryStage == null) {
             primaryStage = new Stage();
-            privateInfo.setMainStage(primaryStage);
+            privateInfo.setMainStage(primaryStage, rootLvl);
             primaryStage.setTitle("Персональная информация");
-            primaryStage.setScene(new Scene(fxmlPersonalInfo));
+            Scene scene = new Scene(fxmlPersonalInfo);
+            settingScene(scene, primaryStage);
+            primaryStage.setScene(scene);
             primaryStage.initModality(Modality.WINDOW_MODAL);
             primaryStage.initOwner(mainStage);
         }
@@ -383,7 +452,9 @@ public class ListStaff extends Observable implements Initializable {
         if (finishContractsStage == null) {
             finishContractsStage = new Stage();
             finishContractsStage.setTitle("Окончание сроков");
-            finishContractsStage.setScene(new Scene(fxmlFinishContracts));
+            Scene scene = new Scene(fxmlFinishContracts);
+            settingScene(scene, finishContractsStage);
+            finishContractsStage.setScene(scene);
             finishContractsStage.initModality(Modality.WINDOW_MODAL);
             finishContractsStage.initOwner(mainStage);
         }
@@ -394,25 +465,79 @@ public class ListStaff extends Observable implements Initializable {
         finishContractsStage.setMaxWidth(finishContractsStage.getWidth());
     }
 
-    void setMainStage(Stage mainStage, String lastLogin) {
+    public void createBigFilterGUI() throws IOException {
+        logger.info("Big Filter");
+        if (bigFilterStage == null){
+            bigFilterStage = new Stage();
+            bigFilterStage.setTitle("Расширенный фильтр");
+            Scene scene = new Scene(fxmlBigFilter);
+            settingScene(scene, bigFilterStage);
+            bigFilterStage.setScene(scene);
+            bigFilterStage.initModality(Modality.APPLICATION_MODAL);
+        }
+        bigFilterStage.showAndWait();
+        bigFilterStage.setMinHeight(bigFilterStage.getHeight());
+        bigFilterStage.setMinWidth(bigFilterStage.getWidth());
+        bigFilterStage.setMaxWidth(bigFilterStage.getHeight());
+        bigFilterStage.setMaxHeight(bigFilterStage.getWidth());
+    }
+
+    void setMainStage(Stage mainStage, String lastLogin, int rootLvl) {
         logger.info("setMainStage");
         this.mainStage = mainStage;
         this.lastLogin = lastLogin;
+        this.rootLvl = rootLvl;
+        switch (rootLvl){
+            case 0:
+                btnOpen.setDisable(false);
+                btnAdd.setDisable(false);
+                btnDelete.setDisable(false);
+                btnFilter.setDisable(false);
+                btnOpenFinishMedical.setDisable(false);
+                btnOpenFinishContracts.setDisable(false);
+                break;
+            case 1:
+                btnOpen.setDisable(false);
+                btnAdd.setDisable(false);
+                btnDelete.setDisable(true);
+                btnFilter.setDisable(false);
+                btnOpenFinishMedical.setDisable(false);
+                btnOpenFinishContracts.setDisable(false);
+                break;
+            case 2:
+                btnOpen.setDisable(false);
+                btnAdd.setDisable(true);
+                btnDelete.setDisable(true);
+                btnFilter.setDisable(false);
+                btnOpenFinishMedical.setDisable(false);
+                btnOpenFinishContracts.setDisable(false);
+                break;
+        }
+
     }
+
+    private <T extends Event> void closeWindowEvent(T t) {
+        logger.info("closeWindowEvent");
+    }
+
     /**Initializing loader*/
     private void initLoader(){
         logger.info("initLoader");
         fxmlLoader.setLocation(getClass().getResource(FXML_PERSONAL_INFORMATION));
         fxmlLoaderFinishContracts.setLocation(getClass().getResource(FXML_FINISH_CONTRACTS));
+        fxmlLoaderBigFilter.setLocation(getClass().getResource(FXML_BIG_FILTER));
+
         try {
             fxmlPersonalInfo = fxmlLoader.load();
             fxmlFinishContracts = fxmlLoaderFinishContracts.load();
+            fxmlBigFilter = fxmlLoaderBigFilter.load();
         } catch (IOException e) {
             logger.error(e.getMessage());
             e.printStackTrace();
         }
         privateInfo = fxmlLoader.getController();
         finishDocuments = fxmlLoaderFinishContracts.getController();
+        bigFilter = fxmlLoaderBigFilter.getController();
     }
     /**Check is selected person on table */
     private boolean personIsSelected(Staff selectPerson) {
@@ -484,29 +609,26 @@ public class ListStaff extends Observable implements Initializable {
         return textFlow;
     }
 
-
-    /*System.out.println("tfSearchAct");
-        if (!tfSearch.getText().equals("")) {
-            for (Staff staff : collectionListStaff.getStaffList()) {
-                System.out.println("Найдено1");
-                if (staff.getSurname().toLowerCase().contains(tfSearch.getText().toLowerCase())) {
-
-
-                    //collectionListStaff.delete(staff);
-                }
-            }
-        }*/
-
-
-
-
-            /*if (!staff.getSurname().toLowerCase().contains(tfSearch.getText().toLowerCase())) {
-                collectionListStaff.delete(staff);
-            }*/
-
-
     public void tfSearchActMouse(MouseEvent mouseEvent) {
         logger.info("tfSearchActMouse");
         //createBackupList();
+    }
+
+    private void settingScene(Scene scene, Stage stage){
+        scene.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(javafx.scene.input.MouseEvent event) {
+                xOffset = stage.getX() - event.getScreenX();
+                yOffset = stage.getY() - event.getScreenY();
+            }
+        });
+
+        scene.setOnMouseDragged(new EventHandler<javafx.scene.input.MouseEvent>() {
+            @Override
+            public void handle(javafx.scene.input.MouseEvent event) {
+                stage.setX(event.getScreenX() + xOffset);
+                stage.setY(event.getScreenY() + yOffset);
+            }
+        });
     }
 }

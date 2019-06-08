@@ -1,11 +1,10 @@
 package controllers;
 
-import Other.SetupClearButtonField;
 import interfaces.CollectionListCategories;
-import interfaces.CollectionListHoliday;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -21,9 +20,10 @@ import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 public class AddCategory implements Initializable {
-    public ComboBox<String> cbTypeCategory;
-    public ComboBox<String> cbLevelCategory;
-    public DatePicker dpDateCategory;
+    @FXML public ComboBox<String> cbTypeCategory;
+    @FXML public ComboBox<String> cbLevelCategory;
+    @FXML public DatePicker dpDateCategory;
+    @FXML public Button btnSave;
 
     private CollectionListCategories collectionListCategories;
     private Category category;
@@ -33,21 +33,21 @@ public class AddCategory implements Initializable {
     private int idStaff, howButtonPressed;
     ObservableList<String> typesCategory =
             FXCollections.observableArrayList(
-                    "Категория педагога социального",
-                    "Категория библиотекаря",
-                    "Категория воспитателя",
-                    "Категория концертмейстер",
-                    "Категория мастера",
-                    "Категория методиста",
-                    "Категория музыкального руководителя",
-                    "Категория педагог-организатор",
-                    "Категория педагога дополнительного образования",
-                    "Категория педагога-психолога",
-                    "Категория-преподавателя",
-                    "Категория психолога",
-                    "Категория руководителя физического воспитания",
-                    "Категория учителя-дефектолога",
-                    "Учительская категория"
+                    "Педагога социального",
+                    "Библиотекаря",
+                    "Воспитателя",
+                    "Концертмейстер",
+                    "Мастера",
+                    "Методиста",
+                    "Музыкального руководителя",
+                    "Педагога-организатора",
+                    "Педагога дополнительного образования",
+                    "Педагога-психолога",
+                    "Преподавателя",
+                    "Психолога",
+                    "Руководителя физического воспитания",
+                    "Учителя-дефектолога",
+                    "Учительская"
 
             );
     ObservableList<String> levelCategories =
@@ -66,8 +66,11 @@ public class AddCategory implements Initializable {
     }
 
     public void setCategory(CollectionListCategories collectionListCategories,
-                           Category category){
+                           Category category, int rootLvl){
         logger.info("setCategory - 1");
+
+        if (rootLvl == 2) btnSave.setDisable(true);
+        else btnSave.setDisable(false);
 
 
         dpDateCategory.setValue(null);

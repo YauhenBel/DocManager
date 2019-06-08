@@ -30,6 +30,7 @@ public class AddEducation implements Initializable {
     @FXML public CustomTextField tfQualification;
     @FXML public DatePicker dpDateFinish;
     @FXML public Label labelError;
+    public Button btnSaveEducation;
     private Education education;
     private CollectionListEducation mCollectionListEducation;
     private int howButtonPressed = 3;
@@ -57,9 +58,10 @@ public class AddEducation implements Initializable {
     }
 
     public void setEducation(CollectionListEducation collectionListEducation,
-                             Education education){
+                             Education education, int rootLvl){
         logger.info("setEducation - 1");
-
+        if (rootLvl == 2) btnSaveEducation.setDisable(true);
+        else btnSaveEducation.setDisable(false);
         mCollectionListEducation = collectionListEducation;
         this.education = education;
         tfNameEducation.setText(education.getmNameEd());
@@ -89,6 +91,7 @@ public class AddEducation implements Initializable {
         cbLevelEducation.setValue(null);
         howButtonPressed = 1;
     }
+
 
     public void actionBtnPress(ActionEvent actionEvent) {
         Object object = actionEvent.getSource();

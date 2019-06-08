@@ -28,6 +28,7 @@ public class AddParthnership implements Initializable {
     @FXML public DatePicker dpToTime;
     @FXML public CheckBox checkInside;
     @FXML public CheckBox checkOutside;
+    @FXML public Button btnSaveParthnership;
     @FXML private Label labelError;
 
     private CollectionListParthnership collectionListParthnership;
@@ -44,8 +45,10 @@ public class AddParthnership implements Initializable {
     }
 
     public void setParthnership(CollectionListParthnership collectionListParthnership,
-                       Parthneriship parthneriship){
+                       Parthneriship parthneriship, int rootLvl){
         logger.info("setParthnership - 1");
+        if (rootLvl == 2) btnSaveParthnership.setDisable(true);
+        else btnSaveParthnership.setDisable(true);
         this.collectionListParthnership = collectionListParthnership;
         this.parthneriship = parthneriship;
         tfPosition.setText(parthneriship.getPosition());

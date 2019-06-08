@@ -6,8 +6,8 @@
  */
 package interfaces;
 
-
 import ConnectionPooling.DataSource;
+import ConnectionPooling.WorkWithExcel;
 import Other.SetupClearButtonField;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,7 +18,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 
+import java.io.IOException;
 import java.sql.*;
+import java.util.ArrayList;
 
 /**
  * This class for connects with DB
@@ -124,7 +126,7 @@ public class CollectionListStaff implements ListStaff {
      * @throws SQLException
      */
     public void processAnswer(ResultSet rs) throws SQLException {
-        logger.fatal("processAnswer");
+        logger.info("processAnswer");
         while (rs.next()) {
             String str = null;
             try {
@@ -149,6 +151,85 @@ public class CollectionListStaff implements ListStaff {
 
         }
         rs.close();
+    }
+
+    /**
+     * Processing answer from DB
+     *
+     * @param rs
+     * @throws SQLException
+     */
+    public void processAnswer(ResultSet rs, Filter filter) throws SQLException {
+        logger.info("processAnswer");
+        int i = 0, j = 0;
+        if (filter.getUseStaff()) i++;
+        if (filter.getUseContracts()) i++;
+        if (filter.getUseCategory()) i++;
+        String FIO = "", contract = "",  category = "";
+
+        ArrayList<ArrayList<String>> arrayLists = new ArrayList<>();
+        ArrayList<String> arrayList = new ArrayList<>();
+        if (filter.getUseStaff()) FIO = "ФИО";
+        if (filter.getUseContracts()) contract  = "Тип контракта";
+        if (filter.getUseCategory()) category = "Категория";
+        arrayList.add(FIO);
+        arrayList.add(contract);
+        arrayList.add(category);
+        arrayLists.add(arrayList);
+
+
+
+        while (rs.next()) {
+            String str = null;
+            arrayList = new ArrayList<>();
+            try {
+
+                if (filter.getUseStaff())
+                    FIO = rs.getString("surname") + " "
+                            + rs.getString("name") + " "
+                            + rs.getString("fatherName");
+
+                if (filter.getUseContracts())
+                    contract  = rs.getString("type");
+                if (filter.getUseCategory())
+                    category = rs.getString("typeCategory");
+
+                arrayList.add(FIO);
+                arrayList.add(contract);
+                arrayList.add(category);
+
+                arrayLists.add(arrayList);
+
+                //arrayList.clear();
+
+                str = "\nidStaff = " + rs.getString("idStaff")
+                        + "\nsurname = " + rs.getString("surname")
+                        + "\nname = " + rs.getString("name")
+                        + "\nfatherName = " + rs.getString("fatherName")
+                        + "\nposition = " + rs.getString("position")+"\n";
+
+                logger.info("\ninfo:\n" + str+"\n");
+                staffList.add(new Staff(
+                        Integer.parseInt(rs.getString("idStaff")),
+                        rs.getString("surname"),
+                        rs.getString("name"),
+                        rs.getString("fatherName"),
+                        rs.getString("position")
+                ));
+            } catch (SQLException e) {
+                e.printStackTrace();
+                logger.error(e.getMessage());
+            }
+
+        }
+        rs.close();
+
+        try {
+            WorkWithExcel workWithExcel = new WorkWithExcel(arrayLists);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void fillFinishWorkers(){
@@ -302,9 +383,19 @@ public class CollectionListStaff implements ListStaff {
         logger.info("getColFinishMed");
         return colFinishMed;}
 
-    public void toFilter(Filter filter){
+    public Boolean toFilter(Filter filter){
         logger.info("toFilter");
         this.filter = filter;
+        if (
+                filter.getYearFrom().isEmpty()
+                && filter.getYearTo().isEmpty()
+                && filter.getLengthWorkFrom().isEmpty()
+                && filter.getLengthWorkTo().isEmpty()
+                && filter.getFormContract() == null
+                && filter.getLevelCategory() == null
+                && filter.getLevelEducation() == null
+                && filter.getHoliday() == null
+                ) return false;
         staffList.clear();
         PreparedStatement filterStaff = null;
         try {
@@ -312,7 +403,7 @@ public class CollectionListStaff implements ListStaff {
             connection.setAutoCommit(false);
             filterStaff =
                     connection.prepareStatement(getQuery());
-            processAnswer(filterStaff.executeQuery());
+            processAnswer(filterStaff.executeQuery(), filter);
             connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -321,150 +412,201 @@ public class CollectionListStaff implements ListStaff {
         }finally {
             SetupClearButtonField.closeConnections(filterStaff, connection);
         }
+        return true;
     }
 
     private String getQuery(){
         logger.info("getQuery");
-        int status = 0;
+        if (filter.getCreateExcel()){
+            return toFilterWithCreateExel();
+        }
+        return toFilterList();
+    }
+
+    private String toFilterList(){
+        logger.info("toFilterList");
+        boolean status = false;
         String query = "SELECT `staff`.`idStaff`, `staff`.`surname`, `staff`.`name`, " +
                 "`staff`.`fatherName`, `staff`.`position` FROM `staff` JOIN " ;
 
         if (!filter.getYearFrom().isEmpty() || !filter.getYearTo().isEmpty()) {
             query+="`dateofbirth` ON `dateofbirth`.`idStaff` = `staff`.`idStaff`";
-            status = 1;
+            status = true;
         }
 
         if (!filter.getLengthWorkFrom().isEmpty() || !filter.getLengthWorkTo().isEmpty()){
-            if (status == 1) {
-                query+=" INNER JOIN ";
-            }else {
-                status = 1;
-            }
+            if (status) query+=" INNER JOIN ";
+            else status = true;
 
             query+="`lengthwork` ON `lengthwork`.`idStaff` = `staff`.`idStaff`";
         }
 
         if (filter.getFormContract() != null){
-            if (status == 1) {
-                query+=" INNER JOIN ";
-            }else {
-                status = 1;
-            }
+            if (status) query+=" INNER JOIN ";
+            else status = true;
 
             query+="`contracts` ON `contracts`.`idStaff` = `staff`.`idStaff`";
         }
 
         if (filter.getLevelCategory() != null){
-            if (status == 1) {
-                query+=" INNER JOIN ";
-            }else {
-                status = 1;
-            }
+            if (status) query+=" INNER JOIN ";
+            else status = true;
 
             query+="`category` ON `category`.`idStaff` = `staff`.`idStaff`";
         }
 
         if (filter.getLevelEducation() != null){
-            if (status == 1) {
-                query+=" INNER JOIN ";
-            }else {
-                status = 1;
-            }
+            if (status) query+=" INNER JOIN ";
+            else status = true;
 
             query+="`education` ON `education`.`idStaff` = `staff`.`idStaff`";
         }
 
         if (filter.getHoliday() != null){
-            if (status == 1) {
-                query+=" INNER JOIN ";
-            }else {
-                status = 1;
-            }
+            if (status) query+=" INNER JOIN ";
+
+            query+="`holidays` ON `holidays`.`idStaff` = `staff`.`idStaff`";
+        }
+
+        query += " WHERE ";
+
+
+        //logger.info("Фильтрующий запрос:\n" + query);
+        return getAddWhere(query);
+    }
+
+    private String toFilterWithCreateExel(){
+        logger.info("toFilterWithCreateExel");
+
+        boolean status = false;
+
+        String query = "SELECT `staff`.`idStaff`, `staff`.`surname`, `staff`.`name`, " +
+                "`staff`.`fatherName`, `staff`.`position`";
+
+        if (filter.getUseContracts()){
+            query+=", `contracts`.`type`";
+            status = true;
+        }
+        if (filter.getUseCategory()){
+            if (status) query+=", ";
+            query+="`category`.`typeCategory`, `category`.`levelCategory`, `category`.`dateCategory`";
+
+        }
+
+        query+=" FROM `staff` JOIN ";
+
+        status = false;
+
+        if (!filter.getYearFrom().isEmpty() || !filter.getYearTo().isEmpty()
+                || filter.getUseDateOfBirth()) {
+            query+="`dateofbirth` ON `dateofbirth`.`idStaff` = `staff`.`idStaff`";
+            status = true;
+        }
+
+        if (!filter.getLengthWorkFrom().isEmpty()
+                || !filter.getLengthWorkTo().isEmpty()
+                || filter.getUseLengthWork()){
+            if (status) query+=" INNER JOIN ";
+            else status = true;
+
+            query+="`lengthwork` ON `lengthwork`.`idStaff` = `staff`.`idStaff`";
+        }
+
+        if (filter.getFormContract() != null || filter.getUseContracts()){
+            if (status) query+=" INNER JOIN ";
+            else status = true;
+
+            query+="`contracts` ON `contracts`.`idStaff` = `staff`.`idStaff`";
+        }
+
+        if (filter.getLevelCategory() != null || filter.getUseCategory()){
+            if (status) query+=" INNER JOIN ";
+            else status = true;
+
+            query+="`category` ON `category`.`idStaff` = `staff`.`idStaff`";
+        }
+
+        if (filter.getLevelEducation() != null || filter.getUseEducation()){
+            if (status)  query+=" INNER JOIN ";
+            else  status = true;
+
+            query+="`education` ON `education`.`idStaff` = `staff`.`idStaff`";
+        }
+
+        if (filter.getHoliday() != null || filter.getUseHolidays()){
+            if (status) query+=" INNER JOIN ";
 
             query+="`holidays` ON `holidays`.`idStaff` = `staff`.`idStaff`";
         }
 
         query+= " WHERE ";
 
-        status = 0;
+        return getAddWhere(query);
+    }
 
+    private String getAddWhere(String query){
+
+        Boolean status = false;
 
         if (!filter.getYearFrom().isEmpty()){
-            status = 1;
+            status = true;
             query+=" TIMESTAMPDIFF(YEAR,`dateOfBirth`,curdate()) >= " + filter.getYearFrom();
         }
         if (!filter.getYearTo().isEmpty()){
-            if (status == 1){
-                query+= " AND ";
-            }
+            if (status)  query+= " AND ";
             query+=" TIMESTAMPDIFF(YEAR,`dateOfBirth`,curdate()) <= " + filter.getYearTo();
-            status = 1;
+            status = true;
         }
 
         if (!filter.getLengthWorkFrom().isEmpty() && !filter.isGeneralLengthWork()){
-            if (status == 1){
-                query+= " AND ";
-            }
+            if (status)query+= " AND ";
             query+="`lengthwork`.`years` >= " + filter.getLengthWorkFrom();
-            status = 1;
+            status = true;
         }
 
         if (!filter.getLengthWorkTo().isEmpty() && !filter.isGeneralLengthWork()){
-            if (status == 1){
-                query+= " AND ";
-            }
+            if (status) query+= " AND ";
             query+=" `lengthwork`.`years` <= " + filter.getLengthWorkTo();
-            status = 1;
+            status = true;
         }
 
         if (!filter.getLengthWorkFrom().isEmpty() && filter.isGeneralLengthWork()){
-            if (status == 1){
-                query+= " AND ";
-            }
+            if (status) query+= " AND ";
             query+="`lengthwork`.`generalyears` >= " + filter.getLengthWorkFrom();
-            status = 1;
+            status = true;
         }
 
         if (!filter.getLengthWorkTo().isEmpty() && filter.isGeneralLengthWork()){
-            if (status == 1){
-                query+= " AND ";
-            }
+            if (status) query+= " AND ";
             query+=" `lengthwork`.`generalyears` <= " + filter.getLengthWorkTo();
-            status = 1;
+            status = false;
         }
 
         if (filter.getFormContract() != null){
-            if (status == 1){
-                query+= " AND ";
-            }
+            if (status) query+= " AND ";
             query+=" `contracts`.`type` = '" + filter.getFormContract() + "'";
-            status = 1;
+            status = true;
         }
 
         if (filter.getLevelCategory() != null){
-            if (status == 1){
-                query+= " AND ";
-            }
+            if (status) query+= " AND ";
             query+=" `category`.`levelCategory` = '" + filter.getLevelCategory() + "'";
-            status = 1;
+            status = true;
         }
 
         if (filter.getLevelEducation() != null){
-            if (status == 1){
-                query+= " AND ";
-            }
+            if (status)query+= " AND ";
             query+=" `education`.`levelEducation` = '" + filter.getLevelEducation() + "'";
-            status = 1;
+            status = true;
         }
 
         if (filter.getHoliday() != null){
-            if (status == 1){
-                query+= " AND ";
-            }
+            if (status) query+= " AND ";
             query+=" `holidays`.`typeHoliday` = '" + filter.getHoliday() + "'";
-            status = 1;
         }
-        logger.info("Фильтрующий запрос:\n" + query);
+
+        logger.info("Query: " + query);
+
         return query;
     }
 }

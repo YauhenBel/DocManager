@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 
 import static java.sql.Types.NULL;
 
@@ -184,26 +185,6 @@ public class CollectionListContract implements ListContract {
         return contractsList;
     }
 
-    private String returnDate(String date){
-        logger.info("returnDate");
-        String[] dates;
-        if (date != null){
-            dates = date.split("-");
-            return dates[2] + "." + dates[1] + "." + dates[0];
-        }
-        return  null;
-    }
-
-    private String returnDateForDatabase(String date){
-        logger.info("returnDateForDatabase");
-        String[] dates;
-        if (date != null){
-            dates = date.split("\\.");
-            return dates[2] + "-" + dates[1] + "-" + dates[0];
-        }
-        return  null;
-    }
-
     @Override
     public void clearList() {
         logger.info("clearList");
@@ -224,17 +205,6 @@ public class CollectionListContract implements ListContract {
 
 
     }
-
-    /*public String lengthWork(){
-        String lengthWork = "Стаж: ";
-        getLengthWork(idStaff);
-        lengthWork += "Годы -" + year + ", Месяцы - " + month + ", Дни - " + day;
-        year = 0;
-        month = 0;
-        day = 0;
-
-        return lengthWork;
-    }*/
 
     public void lengthWork(ObservableList<Staff> staffList){
         logger.info("lengthWork1");
@@ -305,7 +275,92 @@ public class CollectionListContract implements ListContract {
         }
     }
 
+    public ArrayList<String> getLengthContract(){
+        logger.info("getLengthContract");
+        logger.info("idStaff = " + idStaff);
+        ArrayList<String> arrayList = new ArrayList<>();
+
+        PreparedStatement preparedStatement = null;
+        Connection connection = null;
+
+        try {
+            connection = DataSource.getConnection();
+            connection.setAutoCommit(false);
+
+            preparedStatement = connection.prepareStatement(
+                    "SELECT * FROM `lenghtcontract` WHERE idstaff = ?");
+            preparedStatement.setInt(1, idStaff);
+            ResultSet rs = preparedStatement.executeQuery();
+            connection.commit();
+                while (rs.next()) {
+
+                    logger.info("datecontractfrom = " + rs.getString("datecontractfrom"));
+                    logger.info("datecontrctto = " + rs.getString("datecontrctto"));
+                    arrayList.add(rs.getString("datecontractfrom"));
+                    arrayList.add(rs.getString("datecontrctto"));
+            }
+
+            rs.close();
+
+
+        } catch (SQLException e) {
+            logger.info("catch");
+            SetupClearButtonField.closeConnections(connection);
+            e.printStackTrace();
+        }
+        finally {
+            logger.info("finally");
+            SetupClearButtonField.closeConnections(preparedStatement, connection);
+        }
+
+        return arrayList;
+    }
+
+    public void updateLengthContract(String dateFrom, String dateTo){
+
+        PreparedStatement updateLengthContract = null;
+        Connection connection = null;
+        try {
+            connection = DataSource.getConnection();
+            connection.setAutoCommit(false);
+
+           updateLengthContract = connection.prepareStatement("SELECT * FROM lenghtcontract " +
+                   "WHERE `idstaff` =" + idStaff);
+
+           ResultSet resultSet = updateLengthContract.executeQuery();
+           //connection.commit();
+           updateLengthContract = null;
+           if (resultSet.isFirst()){
+               logger.info("resultSet != null");
+               updateLengthContract = connection.prepareStatement(
+                       "UPDATE lenghtcontract SET datecontractfrom =?, datecontrctto=?  WHERE idstaff=?");
+               updateLengthContract.setString(1, dateFrom);
+               updateLengthContract.setString(2, dateTo);
+               updateLengthContract.setInt(3, idStaff);
+               updateLengthContract.executeUpdate();
+           }else  {
+               logger.info("resultSet == null");
+               updateLengthContract = connection.prepareStatement(
+                       "INSERT INTO lenghtcontract (idstaff, datecontractfrom, datecontrctto) VALUES(?, ?, ?)");
+               updateLengthContract.setInt(1, idStaff);
+               updateLengthContract.setString(2, dateFrom);
+               updateLengthContract.setString(3, dateTo);
+               updateLengthContract.executeUpdate();
+
+           }
+           connection.commit();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            SetupClearButtonField.closeConnections(connection);
+        }
+        finally {
+            SetupClearButtonField.closeConnections(updateLengthContract, connection);
+        }
+    }
+
     private void getFromDBOutsideLengthWork(int id){
+        logger.info("getFromDBOutsideLengthWork - id:" + id);
         logger.info("getFromDBOutsideLengthWork");
         PreparedStatement preparedStatement = null;
         ResultSet rs = null;
@@ -391,6 +446,8 @@ public class CollectionListContract implements ListContract {
         System.out.println("lengthWork" + lengthWork);*/
     }
 
+
+
     private String calculateLengthWork(int days){
         logger.info("calculateLengthWork");
 
@@ -447,12 +504,32 @@ public class CollectionListContract implements ListContract {
 
     }
 
-        private static String pluralize(long num) {
-            logger.info("pluralize");
-            return num == 1 ? "" : "s";
-        }
+    private static String pluralize(long num) {
+        logger.info("pluralize");
+        return num == 1 ? "" : "s";
+    }
 
-        public String[] getYearmonthday() {
+    public String[] getYearmonthday() {
             logger.info("getYearmonthday");
         return yearmonthday;}
+
+    private String returnDate(String date){
+        logger.info("returnDate = "  + date);
+        String[] dates;
+        if (date != null){
+            dates = date.split("-");
+            logger.info("Result = " + dates[2] + "." + dates[1] + "." + dates[0]);
+            return dates[2] + "." + dates[1] + "." + dates[0];
+        }
+        return  null;
+    }
+
+    private String returnDateForDatabase(String date){
+        String[] dates;
+        if (date != null){
+            dates = date.split("\\.");
+            return dates[2] + "-" + dates[1] + "-" + dates[0];
+        }
+        return  null;
+    }
 }

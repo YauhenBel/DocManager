@@ -16,7 +16,7 @@
 
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="565.0" prefWidth="825.0" stylesheets="/styles/PersonaInfo.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.PrivateInfo">
    <children>
-      <TabPane prefHeight="570.0" prefWidth="825.0" style="-fx-border-color: gray;" tabClosingPolicy="UNAVAILABLE">
+      <TabPane prefHeight="565.0" prefWidth="825.0" style="-fx-border-color: gray;" tabClosingPolicy="UNAVAILABLE">
         <tabs>
           <Tab text="Общая информация">
             <content>
@@ -59,7 +59,7 @@
                         </Label>
                          <CustomTextField fx:id="textidNum" layoutX="26.0" layoutY="231.0" prefHeight="25.0" prefWidth="306.0" />
                         <CustomTextField fx:id="textpasspNum" layoutX="358.0" layoutY="231.0" prefHeight="25.0" prefWidth="180.0" />
-                        <Label layoutX="362.0" layoutY="204.0" prefHeight="30.0" prefWidth="180.0" text="Номер пасспорта:">
+                        <Label layoutX="362.0" layoutY="204.0" prefHeight="30.0" prefWidth="180.0" text="Номер паспорта:">
                            <font>
                               <Font size="20.0" />
                            </font>
@@ -98,7 +98,7 @@
                            </font>
                         </Label>
                         <CustomTextField fx:id="textAnyAddress" layoutX="24.0" layoutY="356.0" prefHeight="25.0" prefWidth="560.0" />
-                        <Label fx:id="errorInformation" layoutX="28.0" layoutY="508.0" prefHeight="17.0" prefWidth="538.0" textFill="RED" />
+                        <Label fx:id="errorInformation" layoutX="28.0" layoutY="495.0" prefHeight="25.0" prefWidth="538.0" textFill="RED" wrapText="true" />
                         <Pane layoutX="614.0" layoutY="429.0" prefHeight="91.0" prefWidth="200.0" style="-fx-border-color: gray;">
                            <children>
                               <Button fx:id="btnSave" layoutX="45.0" layoutY="14.0" mnemonicParsing="false" onAction="#actionBtnPersInfo" prefHeight="25.0" prefWidth="110.0" text="Сохранить" />
@@ -116,6 +116,7 @@
                               <Font size="20.0" />
                            </font>
                         </Label>
+                        <CheckBox fx:id="sameAddress" layoutX="365.0" layoutY="326.0" mnemonicParsing="false" onAction="#doSameAddress" prefHeight="30.0" prefWidth="219.0" text="Совпадает с адресом проживания" />
                      </children>
                   </AnchorPane>
             </content>
@@ -248,6 +249,9 @@
                            </font>
                         </Label>
                         <Button fx:id="btnSaveOutsideLengthWork" layoutX="740.0" layoutY="46.0" mnemonicParsing="false" onAction="#actionBtnPersInfo" prefHeight="25.0" prefWidth="80.0" text="Сохранить" />
+                        <DatePicker fx:id="dateContractTo" layoutX="157.0" layoutY="150.0" prefHeight="25.0" prefWidth="132.0" />
+                        <DatePicker fx:id="dateContractFrom" layoutX="12.0" layoutY="150.0" prefHeight="25.0" prefWidth="132.0" />
+                        <Button fx:id="btnSaveLengthOfContract" layoutX="294.0" layoutY="150.0" mnemonicParsing="false" onAction="#actionBtnPersInfo" text="Сохранить" />
                      </children></AnchorPane>
               </content>
             </Tab>

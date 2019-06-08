@@ -34,6 +34,7 @@ public class AddHoliday implements Initializable {
     @FXML public DatePicker dpDFinish1;
     @FXML public DatePicker dpDStart2;
     @FXML public DatePicker dpDFinish2;
+    @FXML public Button btnSave;
 
     private CollectionListHoliday collectionListHoliday;
     private Holiday holiday;
@@ -66,8 +67,10 @@ public class AddHoliday implements Initializable {
     }
 
     public void setHoliday(CollectionListHoliday collectionListHoliday,
-                       Holiday holiday){
+                       Holiday holiday, int rootLvl){
         logger.info("setHoliday - 1");
+        if (rootLvl == 2) btnSave.setDisable(true);
+        else btnSave.setDisable(false);
 
         dpDStartWork.setValue(null);
         dpDFinishWork.setValue(null);
